@@ -1030,7 +1030,7 @@ var cameraControls, effectController;
 var clock = new THREE.Clock();
 
 // snail params
-var numRings = 16*5 + 1;      // total number of rings that the shell is made of
+var numTurns = 5.;            // number of spiral turns of the shell
 var numRingsPer2Pi = 16;      // shell 'resolution' in longitudinal direction
 var numPointsPerRing = 16;    // shell 'resolution' in tangential direction
 var rad0 = 1.0;               // radius of the first shell ring
@@ -1066,7 +1066,7 @@ function rotationMatrixAroundY(angle) {
 	return mtx;
 }
 
-function setSnailShellVertices(geometry, numRings, numRingsPer2Pi, numPointsPerRing, 
+function setSnailShellVertices(geometry, numTurns, numRingsPer2Pi, numPointsPerRing, 
 	                           rad0, radDecayPer2Pi) {
 	/*
 	Snail shell is made up of rings that are arrenged in a decaying spiral:
@@ -1084,22 +1084,24 @@ function setSnailShellVertices(geometry, numRings, numRingsPer2Pi, numPointsPerR
 	The center of each ring is slightely above the center of previous ring, 
 	so that if arbitrary ring with radius R is at a height 0 
 	the ring right above it (with radius f2pi * R) would be at a height 
-	  R + f2pi*R = R*(1 + f2pi)
+	  sqrt( r^2*(1 + f2pi)^2 - r^2*(1 - f2pi)^2  ) = 2r sqrt(f2pi)
 	We can say that each ring rises dh * df * R above the previous ring with radius R.
 	Therefore, if arbitrary ring with radius R is at height 0
 	the right right above it (with radius f2pi * R) would be at a height
 	  R * dh * sum(f2pi^(i/(numRingsPer2Pi)) for i in range(numRingsPer2Pi))
 	Therefore,
-	  dh = (1 + f2pi) / sum(f2pi^(i/(numRingsPer2Pi)) for i in range(numRingsPer2Pi))
+	  dh =  2r sqrt(f2pi) / sum(f2pi^(i/(numRingsPer2Pi)) for i in range(numRingsPer2Pi))
 	Notice, that dh is not the actual rise, but the relative rise (relative wrt current radius),
 	absolute rise would be dh * R
 	*/
 	// assign undefined params
-	numRings = (numRings === undefined) ? 16*5+1 : numRings;
+	numTurns = (numTurns === undefined) ? 5 : numTurns;
 	numRingsPer2Pi = (numRingsPer2Pi === undefined) ? 16 : numRingsPer2Pi;
 	numPointsPerRing = (numPointsPerRing === undefined) ? 16 : numPointsPerRing;
 	rad0 = (rad0 === undefined) ? 1. : rad0;
 	radDecayPer2Pi = (radDecayPer2Pi === undefined) ? 0.3 : radDecayPer2Pi;
+	
+    var numRings = Math.round(numRingsPer2Pi*numTurns) + 1;      // total number of rings that the shell is made of
 
 	// get 'per ring' radius decay and rise
 	var f2pi = 1. - radDecayPer2Pi;              // current ring rad / ring rad at the previous layer
@@ -1108,7 +1110,7 @@ function setSnailShellVertices(geometry, numRings, numRingsPer2Pi, numPointsPerR
 	for (var i=0; i<numRingsPer2Pi; i++) {
 		risePer2Pi += Math.pow(f2pi, i/(numRingsPer2Pi-1));
 	}
-	var dh = (1 + f2pi) / risePer2Pi;            // rise per ring (as fraction of current rad)
+	var dh = 2 * Math.sqrt(f2pi) / risePer2Pi;   // rise per ring (as fraction of current rad)
 
 	// get coordinates of the ring centers and ring vertices	
 	var rad = rad0;  // initiate radius of the 'current' ring
@@ -1140,7 +1142,7 @@ function setSnailShellVertices(geometry, numRings, numRingsPer2Pi, numPointsPerR
 	}
 }
 
-function setSnailShellFaces(geometry, numRings, numRingsPer2Pi, numPointsPerRing, 
+function setSnailShellFaces(geometry, numTurns, numRingsPer2Pi, numPointsPerRing, 
 	                        rad0, radDecayPer2Pi) {
 	/*
 	e.g., for numPointsPerRing = 16:   
@@ -1160,8 +1162,10 @@ function setSnailShellFaces(geometry, numRings, numRingsPer2Pi, numPointsPerRing
 	*/
 
 	// assign undefined params
-	numRings = (numRings === undefined) ? 16*5+1 : numRings;	
+	numTurns = (numTurns === undefined) ? 5 : numTurns;	
 	numPointsPerRing = (numPointsPerRing === undefined) ? 16 : numPointsPerRing;
+
+	var numRings = Math.round(numTurns * numRingsPer2Pi) + 1;
 	
 	for (var iring = 0; iring < numRings; iring++) { 
 		for (var ipoint = 0; ipoint < numPointsPerRing; ipoint++) {
@@ -1184,15 +1188,17 @@ function setSnailShellFaces(geometry, numRings, numRingsPer2Pi, numPointsPerRing
 	}
 }
 
-function setTexture(geometry, numRings, numRingsPer2Pi, numPointsPerRing, 
+function setTexture(geometry, numTurns, numRingsPer2Pi, numPointsPerRing, 
 	                rad0, radDecayPer2Pi, 
 	                texture, textureLongRepeats, textureTangRepeats) {
 	// assign undefined params
-	numRings = (numRings === undefined) ? 16*5+1 : numRings;
+	numTurns = (numTurns === undefined) ? 5 : numTurns;
 	numRingsPer2Pi = (numRingsPer2Pi === undefined) ? 16 : numRingsPer2Pi;
 	numPointsPerRing = (numPointsPerRing === undefined) ? 16 : numPointsPerRing;
 	textureTangRepeats = (textureTangRepeats === undefined) ? 2 : textureTangRepeats;
 	textureLongRepeats = (textureLongRepeats === undefined) ? 4.7 : textureLongRepeats;
+
+	var numRings = Math.round(numTurns * numRingsPer2Pi) + 1;
 
 	// load texture	
     texture.wrapS = THREE.RepeatWrapping;
@@ -1221,11 +1227,11 @@ function setTexture(geometry, numRings, numRingsPer2Pi, numPointsPerRing,
 	}	
 }
 
-function makeSnailShell(numRings, numRingsPer2Pi, numPointsPerRing, 
+function makeSnailShell(numTurns, numRingsPer2Pi, numPointsPerRing, 
 						rad0, radDecayPer2Pi, 
 						texture, textureLongRepeats, textureTangRepeats) {	
 	// assign undefined params
-	numRings = (numRings === undefined) ? 16*5+1 : numRings;
+	numTurns = (numTurns === undefined) ? 5 : numTurns;
 	numRingsPer2Pi = (numRingsPer2Pi === undefined) ? 16 : numRingsPer2Pi;
 	numPointsPerRing = (numPointsPerRing === undefined) ? 16 : numPointsPerRing;
 	rad0 = (rad0 === undefined) ? 1. : rad0;
@@ -1233,9 +1239,9 @@ function makeSnailShell(numRings, numRingsPer2Pi, numPointsPerRing,
 	
 	// build snail shell geometry: calculate coordinates of vertices, assign faces and textures
 	var geometry = new THREE.Geometry();
-	setSnailShellVertices(geometry, numRings, numRingsPer2Pi, numPointsPerRing, rad0, radDecayPer2Pi);
-	setSnailShellFaces(geometry, numRings, numRingsPer2Pi, numPointsPerRing, rad0, radDecayPer2Pi);
-	setTexture(geometry, numRings, numRingsPer2Pi, numPointsPerRing, rad0, radDecayPer2Pi, texture, textureLongRepeats, textureTangRepeats);
+	setSnailShellVertices(geometry, numTurns, numRingsPer2Pi, numPointsPerRing, rad0, radDecayPer2Pi);
+	setSnailShellFaces(geometry, numTurns, numRingsPer2Pi, numPointsPerRing, rad0, radDecayPer2Pi);
+	setTexture(geometry, numTurns, numRingsPer2Pi, numPointsPerRing, rad0, radDecayPer2Pi, texture, textureLongRepeats, textureTangRepeats);
 	
 	// calculate normals for proper lighting
 	geometry.computeVertexNormals();
@@ -1266,7 +1272,7 @@ function fillScene() {
 	scene.add(light2);	
 
 	// SNAIL SHELL
-	var snail = makeSnailShell( numRings, numRingsPer2Pi, numPointsPerRing, 
+	var snail = makeSnailShell( numTurns, numRingsPer2Pi, numPointsPerRing, 
 	                        	rad0, radDecayPer2Pi, 
 		                        texture, textureLongRepeats, textureTangRepeats);
     snail.castShadow = true;
@@ -1329,13 +1335,20 @@ function render() {
 	var delta = clock.getDelta();
 	cameraControls.update(delta);
 	
-	// update texture only if it was changed
-	if (textureName !== effectController.texname ||
+	// update controls only if toggled
+	if (radDecayPer2Pi !== effectController.raddecay ||
+		numTurns !== effectController.turns ||
+		textureName !== effectController.texname ||
 		textureTangRepeats !== effectController.textangrepeats ||
 		textureLongRepeats !== effectController.texlongrepeats) {
+		// update geometry
+		radDecayPer2Pi = effectController.raddecay;
+		numTurns = effectController.turns;
+		
 		// update texture
 		textureName = effectController.texname;		
 		texture = textures[textureName];
+
         // update num of texture repeats
 		textureTangRepeats = effectController.textangrepeats;
 		textureLongRepeats = effectController.texlongrepeats;
@@ -1353,15 +1366,23 @@ function render() {
 function setupGui() {
 
 	effectController = {
+		raddecay: 0.3,
+		turns: 5,
+
 		texlongrepeats: 4.7,
 		textangrepeats: 2,
 		texname: "angelfish0"
 	};
 
 	var gui = new dat.GUI();
-	gui.add( effectController, "texlongrepeats", 1, 20, 0.01).name("#long. repeats");
-	gui.add( effectController, "textangrepeats", 1, 6, 1).name("#tang. repeats");
-	gui.add( effectController, "texname", 
+	h = gui.addFolder("Geometry");
+	h.add( effectController, "raddecay", 0.0, 1.0, 0.01).name("radius decay");
+	h.add( effectController, "turns", 0.1, 10.0, 0.1).name("#turns");
+
+	h = gui.addFolder("Textures");
+	h.add( effectController, "texlongrepeats", 1, 20, 0.01).name("#long. repeats");
+	h.add( effectController, "textangrepeats", 1, 6, 1).name("#tang. repeats");
+	h.add( effectController, "texname", 
 	  						["angelfish0", 
 							 "angelfish1", 
 							 "gierermeinhardt0",

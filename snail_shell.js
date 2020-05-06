@@ -61,13 +61,13 @@ function setSnailShellVertices(geometry, numTurns, numRingsPer2Pi, numPointsPerR
 	The center of each ring is slightely above the center of previous ring, 
 	so that if arbitrary ring with radius R is at a height 0 
 	the ring right above it (with radius f2pi * R) would be at a height 
-	  R + f2pi*R = R*(1 + f2pi)
+	  sqrt( r^2*(1 + f2pi)^2 - r^2*(1 - f2pi)^2  ) = 2r sqrt(f2pi)
 	We can say that each ring rises dh * df * R above the previous ring with radius R.
 	Therefore, if arbitrary ring with radius R is at height 0
 	the right right above it (with radius f2pi * R) would be at a height
 	  R * dh * sum(f2pi^(i/(numRingsPer2Pi)) for i in range(numRingsPer2Pi))
 	Therefore,
-	  dh = (1 + f2pi) / sum(f2pi^(i/(numRingsPer2Pi)) for i in range(numRingsPer2Pi))
+	  dh =  2r sqrt(f2pi) / sum(f2pi^(i/(numRingsPer2Pi)) for i in range(numRingsPer2Pi))
 	Notice, that dh is not the actual rise, but the relative rise (relative wrt current radius),
 	absolute rise would be dh * R
 	*/
@@ -87,7 +87,7 @@ function setSnailShellVertices(geometry, numTurns, numRingsPer2Pi, numPointsPerR
 	for (var i=0; i<numRingsPer2Pi; i++) {
 		risePer2Pi += Math.pow(f2pi, i/(numRingsPer2Pi-1));
 	}
-	var dh = (1 + f2pi) / risePer2Pi;            // rise per ring (as fraction of current rad)
+	var dh = 2 * Math.sqrt(f2pi) / risePer2Pi;   // rise per ring (as fraction of current rad)
 
 	// get coordinates of the ring centers and ring vertices	
 	var rad = rad0;  // initiate radius of the 'current' ring
