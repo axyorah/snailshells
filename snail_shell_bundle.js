@@ -1059,15 +1059,15 @@ function addAxes(scale) {
 }
 
 function rotationMatrixAroundY(angle) {
-	var mtx = new THREE.Matrix3();
-	mtx.set(Math.cos(angle), 0., Math.cos(Math.PI/2 + angle),			
-			0.,              1., 0.,
-			Math.sin(angle), 0., Math.sin(Math.PI/2 + angle));
-	return mtx;
+    var mtx = new THREE.Matrix3();
+    mtx.set(Math.cos(angle), 0., Math.cos(Math.PI/2 + angle),			
+            0.,              1., 0.,
+            Math.sin(angle), 0., Math.sin(Math.PI/2 + angle));
+    return mtx;
 }
 
 function setSnailShellVertices(geometry, numTurns, numRingsPer2Pi, numPointsPerRing, 
-	                           rad0, radDecayPer2Pi) {
+                               rad0, radDecayPer2Pi) {
 	/*
 	Snail shell is made up of rings that are arrenged in a decaying spiral:
 	radii of the rings become progressively smaller.
@@ -1095,55 +1095,55 @@ function setSnailShellVertices(geometry, numTurns, numRingsPer2Pi, numPointsPerR
 	absolute rise would be dh * R
 	*/
 	// assign undefined params
-	numTurns = (numTurns === undefined) ? 5 : numTurns;
-	numRingsPer2Pi = (numRingsPer2Pi === undefined) ? 16 : numRingsPer2Pi;
-	numPointsPerRing = (numPointsPerRing === undefined) ? 16 : numPointsPerRing;
-	rad0 = (rad0 === undefined) ? 1. : rad0;
-	radDecayPer2Pi = (radDecayPer2Pi === undefined) ? 0.3 : radDecayPer2Pi;
+    numTurns = (numTurns === undefined) ? 5 : numTurns;
+    numRingsPer2Pi = (numRingsPer2Pi === undefined) ? 16 : numRingsPer2Pi;
+    numPointsPerRing = (numPointsPerRing === undefined) ? 16 : numPointsPerRing;
+    rad0 = (rad0 === undefined) ? 1. : rad0;
+    radDecayPer2Pi = (radDecayPer2Pi === undefined) ? 0.3 : radDecayPer2Pi;
 	
     var numRings = Math.round(numRingsPer2Pi*numTurns) + 1;      // total number of rings that the shell is made of
 
-	// get 'per ring' radius decay and rise
-	var f2pi = 1. - radDecayPer2Pi;              // current ring rad / ring rad at the previous layer
-	var df = Math.pow(f2pi, 1/(numRingsPer2Pi)); // current ring rad / previous ring rad
-	var risePer2Pi = 0.0;
-	for (var i=0; i<numRingsPer2Pi; i++) {
-		risePer2Pi += Math.pow(f2pi, i/(numRingsPer2Pi-1));
-	}
-	var dh = 2 * Math.sqrt(f2pi) / risePer2Pi;   // rise per ring (as fraction of current rad)
+    // get 'per ring' radius decay and rise
+    var f2pi = 1. - radDecayPer2Pi;              // current ring rad / ring rad at the previous layer
+    var df = Math.pow(f2pi, 1/(numRingsPer2Pi)); // current ring rad / previous ring rad
+    var risePer2Pi = 0.0;
+    for (var i=0; i<numRingsPer2Pi; i++) {
+        risePer2Pi += Math.pow(f2pi, i/(numRingsPer2Pi-1));
+    }
+    var dh = 2 * Math.sqrt(f2pi) / risePer2Pi;   // rise per ring (as fraction of current rad)
 
-	// get coordinates of the ring centers and ring vertices	
-	var rad = rad0;  // initiate radius of the 'current' ring
-	var height = 0.; // ring center's height
-	var angle = 0.;  // angle between Ox and ring's center
+    // get coordinates of the ring centers and ring vertices	
+    var rad = rad0;  // initiate radius of the 'current' ring
+    var height = 0.; // ring center's height
+    var angle = 0.;  // angle between Ox and ring's center
 
-	for (var iring = 0; iring < numRings; iring++) {
-		// update ring center's location and radius
-		rad *= df;
-		height += dh * rad;
-		angle = 2*Math.PI / numRingsPer2Pi * iring;
+    for (var iring = 0; iring < numRings; iring++) {
+        // update ring center's location and radius
+        rad *= df;
+        height += dh * rad;
+        angle = 2*Math.PI / numRingsPer2Pi * iring;
 		
-		var center = new THREE.Vector3( rad * Math.cos(angle),
-									    height,
-										rad * Math.sin(angle) );
+        var center = new THREE.Vector3( rad * Math.cos(angle),
+                                        height,
+                                        rad * Math.sin(angle) );
 
-		// get ring vertices (anker points of ring's surface)
-		for (var ipoint = 0; ipoint < numPointsPerRing; ipoint++) {	
-			// construct a circle in xOy-plane, rotate and translate it			
-	        var vertex = new THREE.Vector3();
-			vertex.set(rad * Math.cos(2*Math.PI / numPointsPerRing * ipoint),
-					   rad * Math.sin(2*Math.PI / numPointsPerRing * ipoint),
-					   0.0);
-			vertex.applyMatrix3( rotationMatrixAroundY(angle) );
-			vertex.addVectors(vertex, center);
+        // get ring vertices (anker points of ring's surface)
+        for (var ipoint = 0; ipoint < numPointsPerRing; ipoint++) {	
+            // construct a circle in xOy-plane, rotate and translate it			
+            var vertex = new THREE.Vector3();
+            vertex.set(rad * Math.cos(2*Math.PI / numPointsPerRing * ipoint),
+                       rad * Math.sin(2*Math.PI / numPointsPerRing * ipoint),
+                       0.0);
+            vertex.applyMatrix3( rotationMatrixAroundY(angle) );
+            vertex.addVectors(vertex, center);
 
-			geometry.vertices.push(vertex);
-		}
-	}
+            geometry.vertices.push(vertex);
+        }
+    }
 }
 
 function setSnailShellFaces(geometry, numTurns, numRingsPer2Pi, numPointsPerRing, 
-	                        rad0, radDecayPer2Pi) {
+                            rad0, radDecayPer2Pi) {
 	/*
 	e.g., for numPointsPerRing = 16:   
 	    | / |
@@ -1152,129 +1152,129 @@ function setSnailShellFaces(geometry, numTurns, numRingsPer2Pi, numPointsPerRing
 	   -0---16- ...
 	    | / |
 	   -15--31- ...
-		| / | 
+	    | / | 
 	Each face is a triangle defined by three vertices
 	    face 0: (0, 16, 17)
 	    face 1: (0, 17, 1)
-		...
-		face 30: (15, 31, 16)
-		face 31: (15, 16, 0)
+	    ...
+	    face 30: (15, 31, 16)
+	    face 31: (15, 16, 0)
 	*/
 
-	// assign undefined params
-	numTurns = (numTurns === undefined) ? 5 : numTurns;	
-	numPointsPerRing = (numPointsPerRing === undefined) ? 16 : numPointsPerRing;
+    // assign undefined params
+    numTurns = (numTurns === undefined) ? 5 : numTurns;	
+    numPointsPerRing = (numPointsPerRing === undefined) ? 16 : numPointsPerRing;
 
-	var numRings = Math.round(numTurns * numRingsPer2Pi) + 1;
-	
-	for (var iring = 0; iring < numRings; iring++) { 
-		for (var ipoint = 0; ipoint < numPointsPerRing; ipoint++) {
-			var ivertex = iring * numPointsPerRing + ipoint;
-			// faces are between rings -> skip the last ring
-			if (iring != (numRings-1)) {
-				// vertice indexing is different for the last two faces
-				//( we need to 'close' the ring)
-				if (ipoint < numPointsPerRing-1) {
-					var face1 = new THREE.Face3(ivertex, ivertex + numPointsPerRing, ivertex + numPointsPerRing + 1);				
-					var face2 = new THREE.Face3(ivertex, ivertex + numPointsPerRing + 1, ivertex + 1);
-				} else {
-					var face1 = new THREE.Face3(ivertex, ivertex + numPointsPerRing, ivertex + 1);					
-					var face2 = new THREE.Face3(ivertex, ivertex + 1, ivertex + 1 - numPointsPerRing);
-				}
-				geometry.faces.push( face1 );
+    var numRings = Math.round(numTurns * numRingsPer2Pi) + 1;
+
+    for (var iring = 0; iring < numRings; iring++) { 
+        for (var ipoint = 0; ipoint < numPointsPerRing; ipoint++) {
+            var ivertex = iring * numPointsPerRing + ipoint;
+            // faces are between rings -> skip the last ring
+            if (iring != (numRings-1)) {
+                // vertice indexing is different for the last two faces
+                //( we need to 'close' the ring)
+                if (ipoint < numPointsPerRing-1) {
+                    var face1 = new THREE.Face3(ivertex, ivertex + numPointsPerRing, ivertex + numPointsPerRing + 1);				
+                    var face2 = new THREE.Face3(ivertex, ivertex + numPointsPerRing + 1, ivertex + 1);
+                } else {
+                    var face1 = new THREE.Face3(ivertex, ivertex + numPointsPerRing, ivertex + 1);					
+                    var face2 = new THREE.Face3(ivertex, ivertex + 1, ivertex + 1 - numPointsPerRing);
+                }
+                geometry.faces.push( face1 );
                 geometry.faces.push( face2 );
-			}
-		}
-	}
+            }
+        }
+    }
 }
 
 function setTexture(geometry, numTurns, numRingsPer2Pi, numPointsPerRing, 
 	                rad0, radDecayPer2Pi, 
-	                texture, textureLongRepeats, textureTangRepeats) {
-	// assign undefined params
-	numTurns = (numTurns === undefined) ? 5 : numTurns;
-	numRingsPer2Pi = (numRingsPer2Pi === undefined) ? 16 : numRingsPer2Pi;
-	numPointsPerRing = (numPointsPerRing === undefined) ? 16 : numPointsPerRing;
-	textureTangRepeats = (textureTangRepeats === undefined) ? 2 : textureTangRepeats;
-	textureLongRepeats = (textureLongRepeats === undefined) ? 4.7 : textureLongRepeats;
+                    texture, textureLongRepeats, textureTangRepeats) {
+    // assig7n undefined params
+    numTurns = (numTurns === undefined) ? 5 : numTurns;
+    numRingsPer2Pi = (numRingsPer2Pi === undefined) ? 16 : numRingsPer2Pi;
+    numPointsPerRing = (numPointsPerRing === undefined) ? 16 : numPointsPerRing;
+    textureTangRepeats = (textureTangRepeats === undefined) ? 2 : textureTangRepeats;
+    textureLongRepeats = (textureLongRepeats === undefined) ? 4.7 : textureLongRepeats;
 
-	var numRings = Math.round(numTurns * numRingsPer2Pi) + 1;
+    var numRings = Math.round(numTurns * numRingsPer2Pi) + 1;
 
-	// load texture	
+    // load texture	
     texture.wrapS = THREE.RepeatWrapping;
-	texture.wrapT = THREE.RepeatWrapping;
-	texture.repeat.set(textureLongRepeats,textureTangRepeats); // repeat texture `arg0` in longitud dir and `arg1` times in tangential dir
-	texture.offset.set(0.,0.25);                               // offset texture a bit in tangential dir
+    texture.wrapT = THREE.RepeatWrapping;
+    texture.repeat.set(textureLongRepeats,textureTangRepeats); // repeat texture `arg0` in longitud dir and `arg1` times in tangential dir
+    texture.offset.set(0.,0.25);                               // offset texture a bit in tangential dir
 
-	// get texture fraction per face
-	var vertFrac = 1. / numPointsPerRing;
-	var horFrac = 1. / numRingsPer2Pi;
+    // get texture fraction per face
+    var vertFrac = 1. / numPointsPerRing;
+    var horFrac = 1. / numRingsPer2Pi;
 
-	// set texture UVs
-	for (var iring = 0; iring < numRings; iring++) {
-		for (var ipoint = 0; ipoint < numPointsPerRing; ipoint++) {
-			geometry.faceVertexUvs[0].push([
-				new THREE.Vector2( iring   *horFrac, ipoint   *vertFrac), 
-				new THREE.Vector2((iring+1)*horFrac, ipoint   *vertFrac),
-				new THREE.Vector2((iring+1)*horFrac,(ipoint+1)*vertFrac) 
-			]);
-			geometry.faceVertexUvs[0].push([
-				new THREE.Vector2( iring   *horFrac, ipoint   *vertFrac), 
-				new THREE.Vector2((iring+1)*horFrac,(ipoint+1)*vertFrac), 
-				new THREE.Vector2( iring   *horFrac,(ipoint+1)*vertFrac) 
-			]);
-		}
-	}	
+    // set texture UVs
+    for (var iring = 0; iring < numRings; iring++) {
+        for (var ipoint = 0; ipoint < numPointsPerRing; ipoint++) {
+            geometry.faceVertexUvs[0].push([
+                new THREE.Vector2( iring   *horFrac, ipoint   *vertFrac), 
+                new THREE.Vector2((iring+1)*horFrac, ipoint   *vertFrac),
+                new THREE.Vector2((iring+1)*horFrac,(ipoint+1)*vertFrac) 
+            ]);
+            geometry.faceVertexUvs[0].push([
+                new THREE.Vector2( iring   *horFrac, ipoint   *vertFrac), 
+                new THREE.Vector2((iring+1)*horFrac,(ipoint+1)*vertFrac), 
+                new THREE.Vector2( iring   *horFrac,(ipoint+1)*vertFrac) 
+            ]);
+        }
+    }	
 }
 
 function makeSnailShell(numTurns, numRingsPer2Pi, numPointsPerRing, 
-						rad0, radDecayPer2Pi, 
-						texture, textureLongRepeats, textureTangRepeats) {	
-	// assign undefined params
-	numTurns = (numTurns === undefined) ? 5 : numTurns;
-	numRingsPer2Pi = (numRingsPer2Pi === undefined) ? 16 : numRingsPer2Pi;
-	numPointsPerRing = (numPointsPerRing === undefined) ? 16 : numPointsPerRing;
-	rad0 = (rad0 === undefined) ? 1. : rad0;
-	radDecayPer2Pi = (radDecayPer2Pi === undefined) ? 0.3 : radDecayPer2Pi;
+                        rad0, radDecayPer2Pi, 
+                        texture, textureLongRepeats, textureTangRepeats) {	
+    // assign undefined params
+    numTurns = (numTurns === undefined) ? 5 : numTurns;
+    numRingsPer2Pi = (numRingsPer2Pi === undefined) ? 16 : numRingsPer2Pi;
+    numPointsPerRing = (numPointsPerRing === undefined) ? 16 : numPointsPerRing;
+    rad0 = (rad0 === undefined) ? 1. : rad0;
+    radDecayPer2Pi = (radDecayPer2Pi === undefined) ? 0.3 : radDecayPer2Pi;
 	
-	// build snail shell geometry: calculate coordinates of vertices, assign faces and textures
-	var geometry = new THREE.Geometry();
-	setSnailShellVertices(geometry, numTurns, numRingsPer2Pi, numPointsPerRing, rad0, radDecayPer2Pi);
-	setSnailShellFaces(geometry, numTurns, numRingsPer2Pi, numPointsPerRing, rad0, radDecayPer2Pi);
-	setTexture(geometry, numTurns, numRingsPer2Pi, numPointsPerRing, rad0, radDecayPer2Pi, texture, textureLongRepeats, textureTangRepeats);
+    // build snail shell geometry: calculate coordinates of vertices, assign faces and textures
+    var geometry = new THREE.Geometry();
+    setSnailShellVertices(geometry, numTurns, numRingsPer2Pi, numPointsPerRing, rad0, radDecayPer2Pi);
+    setSnailShellFaces(geometry, numTurns, numRingsPer2Pi, numPointsPerRing, rad0, radDecayPer2Pi);
+    setTexture(geometry, numTurns, numRingsPer2Pi, numPointsPerRing, rad0, radDecayPer2Pi, texture, textureLongRepeats, textureTangRepeats);
 	
-	// calculate normals for proper lighting
-	geometry.computeVertexNormals();
-	geometry.computeFaceNormals();
+    // calculate normals for proper lighting
+    geometry.computeVertexNormals();
+    geometry.computeFaceNormals();
 	
-	// assemble snail shell from geometry and material 
-	var material = new THREE.MeshPhongMaterial({map: texture, side: THREE.DoubleSide});
-	var snail = new THREE.Mesh(geometry, material);
-	return snail;
+    // assemble snail shell from geometry and material 
+    var material = new THREE.MeshPhongMaterial({map: texture, side: THREE.DoubleSide});
+    var snail = new THREE.Mesh(geometry, material);
+    return snail;
 }
 
 
 function fillScene() {
-	scene = new THREE.Scene();
-	scene.fog = new THREE.Fog( 0x808080, 2000, 4000 );
+    scene = new THREE.Scene();
+    scene.fog = new THREE.Fog( 0x808080, 2000, 4000 );
 
-	// LIGHTS
-	var ambientLight = new THREE.AmbientLight( 0x222222 );
+    // LIGHTS
+    var ambientLight = new THREE.AmbientLight( 0x222222 );
 
-	var light1 = new THREE.DirectionalLight( 0xffffff, 1.0 );
-	light1.position.set( 200, 400, 500 );
+    var light1 = new THREE.DirectionalLight( 0xffffff, 1.0 );
+    light1.position.set( 200, 400, 500 );
 	
-	var light2 = new THREE.DirectionalLight( 0xffffff, 1.0 );
-	light2.position.set( -500, 250, -200 );
+    var light2 = new THREE.DirectionalLight( 0xffffff, 1.0 );
+    light2.position.set( -500, 250, -200 );
 
-	scene.add(ambientLight);
-	scene.add(light1);
-	scene.add(light2);	
+    scene.add(ambientLight);
+    scene.add(light1);
+    scene.add(light2);	
 
-	// SNAIL SHELL
-	var snail = makeSnailShell( numTurns, numRingsPer2Pi, numPointsPerRing, 
-	                        	rad0, radDecayPer2Pi, 
-		                        texture, textureLongRepeats, textureTangRepeats);
+    // SNAIL SHELL
+    var snail = makeSnailShell( numTurns, numRingsPer2Pi, numPointsPerRing, 
+                                rad0, radDecayPer2Pi, 
+                                texture, textureLongRepeats, textureTangRepeats);
     snail.castShadow = true;
     snail.receiveShadow = true;
     scene.add(snail);
@@ -1282,37 +1282,37 @@ function fillScene() {
 }
 
 function init() {
-    var canvasWidth = 846;
-    var canvasHeight = 494;
-	var canvasRatio = canvasWidth / canvasHeight;
+    var canvasWidth = window.innerWidth;
+    var canvasHeight = window.innerHeight;
+    var canvasRatio = canvasWidth / canvasHeight;
 
-	// RENDERER
-	renderer = new THREE.WebGLRenderer( { antialias: false } );
-	renderer.setSize(canvasWidth, canvasHeight);
-	renderer.setClearColorHex;
+    // RENDERER
+    renderer = new THREE.WebGLRenderer( { antialias: false } );
+    renderer.setSize(canvasWidth, canvasHeight);
+    renderer.setClearColorHex;
 
-	// CAMERA
-	camera = new THREE.PerspectiveCamera( 40, canvasRatio, 1, 10000 );
-	camera.position.set( 8, 5, -3 );
+    // CAMERA
+    camera = new THREE.PerspectiveCamera( 40, canvasRatio, 1, 10000 );
+    camera.position.set( 8, 5, -3 );
 	
-	// CONTROLS
-	cameraControls = new OrbitControls(camera, renderer.domElement);
-	cameraControls.target.set(0,2,0);
+    // CONTROLS
+    cameraControls = new OrbitControls(camera, renderer.domElement);
+    cameraControls.target.set(0,2,0);
 
-	// TEXTURES
-	textures.angelfish0        = new THREE.TextureLoader().load("imgs/angelfish0.png");
-	textures.angelfish1        = new THREE.TextureLoader().load("imgs/angelfish1.png");
-	textures.gierermeinhardt0  = new THREE.TextureLoader().load("imgs/gierermeinhardt0.png");
-	textures.gierermeinhardt1  = new THREE.TextureLoader().load("imgs/gierermeinhardt1.png");
-	textures.grayscottcorals0  = new THREE.TextureLoader().load("imgs/grayscott-corals0.png");
-	textures.grayscottcorals1  = new THREE.TextureLoader().load("imgs/grayscott-corals1.png");
-	textures.grayscottspirals0 = new THREE.TextureLoader().load("imgs/grayscott-spirals0.png");
-	textures.grayscottspirals1 = new THREE.TextureLoader().load("imgs/grayscott-spirals1.png");
-	textures.predprey0         = new THREE.TextureLoader().load("imgs/predprey0.png");
-	textures.predprey1         = new THREE.TextureLoader().load("imgs/predprey1.png");
+    // TEXTURES
+    textures.angelfish0        = new THREE.TextureLoader().load("imgs/angelfish0.png");
+    textures.angelfish1        = new THREE.TextureLoader().load("imgs/angelfish1.png");
+    textures.gierermeinhardt0  = new THREE.TextureLoader().load("imgs/gierermeinhardt0.png");
+    textures.gierermeinhardt1  = new THREE.TextureLoader().load("imgs/gierermeinhardt1.png");
+    textures.grayscottcorals0  = new THREE.TextureLoader().load("imgs/grayscott-corals0.png");
+    textures.grayscottcorals1  = new THREE.TextureLoader().load("imgs/grayscott-corals1.png");
+    textures.grayscottspirals0 = new THREE.TextureLoader().load("imgs/grayscott-spirals0.png");
+    textures.grayscottspirals1 = new THREE.TextureLoader().load("imgs/grayscott-spirals1.png");
+    textures.predprey0         = new THREE.TextureLoader().load("imgs/predprey0.png");
+    textures.predprey1         = new THREE.TextureLoader().load("imgs/predprey1.png");
 
-	textureName = "angelfish0";
-	texture = textures[textureName]; // init
+    textureName = "angelfish0";
+    texture = textures[textureName]; // init
 
 }
 
@@ -1327,73 +1327,73 @@ function addToDOM() {
 
 
 function animate() {
-	window.requestAnimationFrame(animate);
-	render();
+    window.requestAnimationFrame(animate);
+    render();
 }
 
 function render() {
-	var delta = clock.getDelta();
-	cameraControls.update(delta);
+    var delta = clock.getDelta();
+    cameraControls.update(delta);
 	
-	// update controls only if toggled
-	if (radDecayPer2Pi !== effectController.raddecay ||
-		numTurns !== effectController.turns ||
-		textureName !== effectController.texname ||
-		textureTangRepeats !== effectController.textangrepeats ||
-		textureLongRepeats !== effectController.texlongrepeats) {
-		// update geometry
-		radDecayPer2Pi = effectController.raddecay;
-		numTurns = effectController.turns;
+    // update controls only if toggled
+    if (radDecayPer2Pi !== effectController.raddecay ||
+        numTurns !== effectController.turns ||
+        textureName !== effectController.texname ||
+        textureTangRepeats !== effectController.textangrepeats ||
+        textureLongRepeats !== effectController.texlongrepeats) {
+        // update geometry
+        radDecayPer2Pi = effectController.raddecay;
+        numTurns = effectController.turns;
 		
-		// update texture
-		textureName = effectController.texname;		
-		texture = textures[textureName];
+        // update texture
+        textureName = effectController.texname;		
+        texture = textures[textureName];
 
         // update num of texture repeats
-		textureTangRepeats = effectController.textangrepeats;
-		textureLongRepeats = effectController.texlongrepeats;
+        textureTangRepeats = effectController.textangrepeats;
+        textureLongRepeats = effectController.texlongrepeats;
 
-		// reset the scene
-		fillScene(); // lights and shell and added here
-		addAxes(25);
-	}	
+        // reset the scene
+        fillScene(); // lights and shell and added here
+        addAxes(25);
+    }	
 	
-	renderer.render(scene, camera);
+    renderer.render(scene, camera);
 }
 
 
 
 function setupGui() {
 
-	effectController = {
-		raddecay: 0.3,
-		turns: 5,
+    effectController = {
+        raddecay: 0.3,
+        turns: 5,
 
-		texlongrepeats: 4.7,
-		textangrepeats: 2,
-		texname: "angelfish0"
-	};
+        texlongrepeats: 4.7,
+        textangrepeats: 2,
+        texname: "angelfish0"
+    };
 
-	var gui = new dat.GUI();
-	h = gui.addFolder("Geometry");
-	h.add( effectController, "raddecay", 0.0, 1.0, 0.01).name("radius decay");
-	h.add( effectController, "turns", 0.1, 10.0, 0.1).name("#turns");
+    var gui = new dat.GUI();
+    h = gui.addFolder("Geometry");
+    h.add( effectController, "raddecay", 0.0, 1.0, 0.01).name("radius decay");
+    h.add( effectController, "turns", 0.1, 10.0, 0.1).name("#turns");
 
-	h = gui.addFolder("Textures");
-	h.add( effectController, "texlongrepeats", 1, 20, 0.01).name("#long. repeats");
-	h.add( effectController, "textangrepeats", 1, 6, 1).name("#tang. repeats");
-	h.add( effectController, "texname", 
-	  						["angelfish0", 
-							 "angelfish1", 
-							 "gierermeinhardt0",
-							 "gierermeinhardt1", 
-							 "grayscottcorals0", 
-							 "grayscottcorals1", 
-							 "grayscottspirals0",
-							 "grayscottspirals1",
-							 "predprey0",
-							 "predprey1"
-							]).name("texture name");
+    h = gui.addFolder("Textures");
+    h.add( effectController, "texlongrepeats", 1, 20, 0.01).name("#long. repeats");
+    h.add( effectController, "textangrepeats", 1, 6, 1).name("#tang. repeats");
+    h.add( effectController, "texname", 
+                            ["angelfish0", 
+                             "angelfish1", 
+                             "gierermeinhardt0",
+                             "gierermeinhardt1", 
+                             "grayscottcorals0", 
+                             "grayscottcorals1", 
+                             "grayscottspirals0",
+                             "grayscottspirals1",
+                             "predprey0",
+                             "predprey1"
+                            ]).name("texture name");
 }
 
 // ----------------------------------------------------------------------------------------
@@ -1404,7 +1404,5 @@ fillScene(); // lights and shell are added here
 addAxes(25); // adds xyz axes
 addToDOM();  // adds rendered scene back to html
 animate();   // updates frames when camera changes position or controls are toggled
-
-
 
 },{"three-orbit-controls":1}]},{},[2]);
