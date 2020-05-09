@@ -178,8 +178,8 @@ function setTexture(geometry, numTurns, numRingsPer2Pi, numPointsPerRing,
     var numRings = Math.round(numTurns * numRingsPer2Pi) + 1;
 
     // load texture	
-    texture.wrapS = THREE.RepeatWrapping;
-    texture.wrapT = THREE.RepeatWrapping;
+    texture.wrapS = THREE.MirroredRepeatWrapping;
+    texture.wrapT = THREE.MirroredRepeatWrapping;
     texture.repeat.set(textureLongRepeats,textureTangRepeats); // repeat texture `arg0` in longitud dir and `arg1` times in tangential dir
     texture.offset.set(0.,0.25);                               // offset texture a bit in tangential dir
 
@@ -359,8 +359,8 @@ function setupGui() {
     h.add( effectController, "turns", 0.1, 10.0, 0.1).name("#turns");
 
     h = gui.addFolder("Textures");
-    h.add( effectController, "texlongrepeats", 1, 20, 0.01).name("#long. repeats");
-    h.add( effectController, "textangrepeats", 1, 6, 1).name("#tang. repeats");
+    h.add( effectController, "texlongrepeats", 1, 30, 0.01).name("#long. repeats");
+    h.add( effectController, "textangrepeats", 2, 12, 2).name("#tang. repeats");
     h.add( effectController, "texname", 
                             ["angelfish0", 
                              "angelfish1", 

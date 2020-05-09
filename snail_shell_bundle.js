@@ -1069,7 +1069,7 @@ function rotationMatrixAroundY(angle) {
 function setSnailShellVertices(geometry, numTurns, numRingsPer2Pi, numPointsPerRing, 
                                rad0, radDecayPer2Pi) {
 	/*
-	Snail shell is made up of rings that are arrenged in a decaying spiral:
+	Snail shell is made up of rings that are arranged in a decaying spiral:
 	radii of the rings become progressively smaller.
 	If arbitrary ring has a radius R the ring right above it has radius
 	  (1 - radDecayPer2Pi) * R = f2pi * R
@@ -1127,7 +1127,7 @@ function setSnailShellVertices(geometry, numTurns, numRingsPer2Pi, numPointsPerR
                                         height,
                                         rad * Math.sin(angle) );
 
-        // get ring vertices (anker points of ring's surface)
+        // get ring vertices (anchor points of ring's surface)
         for (var ipoint = 0; ipoint < numPointsPerRing; ipoint++) {	
             // construct a circle in xOy-plane, rotate and translate it			
             var vertex = new THREE.Vector3();
@@ -1201,8 +1201,8 @@ function setTexture(geometry, numTurns, numRingsPer2Pi, numPointsPerRing,
     var numRings = Math.round(numTurns * numRingsPer2Pi) + 1;
 
     // load texture	
-    texture.wrapS = THREE.RepeatWrapping;
-    texture.wrapT = THREE.RepeatWrapping;
+    texture.wrapS = THREE.MirroredRepeatWrapping;
+    texture.wrapT = THREE.MirroredRepeatWrapping;
     texture.repeat.set(textureLongRepeats,textureTangRepeats); // repeat texture `arg0` in longitud dir and `arg1` times in tangential dir
     texture.offset.set(0.,0.25);                               // offset texture a bit in tangential dir
 
@@ -1382,8 +1382,8 @@ function setupGui() {
     h.add( effectController, "turns", 0.1, 10.0, 0.1).name("#turns");
 
     h = gui.addFolder("Textures");
-    h.add( effectController, "texlongrepeats", 1, 20, 0.01).name("#long. repeats");
-    h.add( effectController, "textangrepeats", 1, 6, 1).name("#tang. repeats");
+    h.add( effectController, "texlongrepeats", 1, 30, 0.01).name("#long. repeats");
+    h.add( effectController, "textangrepeats", 2, 12, 2).name("#tang. repeats");
     h.add( effectController, "texname", 
                             ["angelfish0", 
                              "angelfish1", 
