@@ -46,7 +46,7 @@ function rotationMatrixAroundY(angle) {
 function setSnailShellVertices(geometry, numTurns, numRingsPer2Pi, numPointsPerRing, 
                                rad0, radDecayPer2Pi) {
 	/*
-	Snail shell is made up of rings that are arrenged in a decaying spiral:
+	Snail shell is made up of rings that are arranged in a decaying spiral:
 	radii of the rings become progressively smaller.
 	If arbitrary ring has a radius R the ring right above it has radius
 	  (1 - radDecayPer2Pi) * R = f2pi * R
@@ -104,7 +104,7 @@ function setSnailShellVertices(geometry, numTurns, numRingsPer2Pi, numPointsPerR
                                         height,
                                         rad * Math.sin(angle) );
 
-        // get ring vertices (anker points of ring's surface)
+        // get ring vertices (anchor points of ring's surface)
         for (var ipoint = 0; ipoint < numPointsPerRing; ipoint++) {	
             // construct a circle in xOy-plane, rotate and translate it			
             var vertex = new THREE.Vector3();
@@ -325,6 +325,7 @@ function render() {
         // update texture
         textureName = effectController.texname;		
         texture = textures[textureName];
+        //debugger;
 
         // update num of texture repeats
         textureTangRepeats = effectController.textangrepeats;
@@ -334,6 +335,7 @@ function render() {
         fillScene(); // lights and shell and added here
         addAxes(25);
     }	
+
 	
     renderer.render(scene, camera);
 }

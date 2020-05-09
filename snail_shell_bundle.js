@@ -1348,6 +1348,7 @@ function render() {
         // update texture
         textureName = effectController.texname;		
         texture = textures[textureName];
+        //debugger;
 
         // update num of texture repeats
         textureTangRepeats = effectController.textangrepeats;
@@ -1357,6 +1358,7 @@ function render() {
         fillScene(); // lights and shell and added here
         addAxes(25);
     }	
+
 	
     renderer.render(scene, camera);
 }
