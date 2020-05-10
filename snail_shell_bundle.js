@@ -1038,6 +1038,7 @@ var radDecayPer2Pi = 0.3;     // ... each ring at level i is 0.3 times smaller t
 var textureName;              // current texture name
 var textureLongRepeats = 4.7; // # texture repeats in longitudinal direction per level (2pi)
 var textureTangRepeats = 2;   // # texture repeats in tangential direction
+var textureTangOffset = 0.;   // texture offset in tangential direction
 var texture;       // current texture; assigend in `init()`, updated in `render()`
 var textures = []; // array of preloaded textures; assigned in `init()`
 
@@ -1204,7 +1205,7 @@ function setTexture(geometry, numTurns, numRingsPer2Pi, numPointsPerRing,
     texture.wrapS = THREE.MirroredRepeatWrapping;
     texture.wrapT = THREE.MirroredRepeatWrapping;
     texture.repeat.set(textureLongRepeats,textureTangRepeats); // repeat texture `arg0` in longitud dir and `arg1` times in tangential dir
-    texture.offset.set(0.,0.25);                               // offset texture a bit in tangential dir
+    texture.offset.set(0.,textureTangOffset);                  // offset texture a bit in tangential dir // updated via controls
 
     // get texture fraction per face
     var vertFrac = 1. / numPointsPerRing;
@@ -1340,12 +1341,14 @@ function render() {
         numTurns !== effectController.turns ||
         textureName !== effectController.texname ||
         textureTangRepeats !== effectController.textangrepeats ||
+        textureTangOffset !== effectController.textangoffset ||
         textureLongRepeats !== effectController.texlongrepeats) {
         // update geometry
         radDecayPer2Pi = effectController.raddecay;
         numTurns = effectController.turns;
 		
         // update texture
+        textureTangOffset = effectController.textangoffset;
         textureName = effectController.texname;		
         texture = textures[textureName];
         //debugger;
@@ -1373,6 +1376,7 @@ function setupGui() {
 
         texlongrepeats: 4.7,
         textangrepeats: 2,
+        textangoffset: 0.,
         texname: "angelfish0"
     };
 
@@ -1384,6 +1388,7 @@ function setupGui() {
     h = gui.addFolder("Textures");
     h.add( effectController, "texlongrepeats", 1, 30, 0.01).name("#long. repeats");
     h.add( effectController, "textangrepeats", 2, 12, 2).name("#tang. repeats");
+    h.add( effectController, "textangoffset", 0., 2., 0.01).name("#tang. offset");
     h.add( effectController, "texname", 
                             ["angelfish0", 
                              "angelfish1", 
