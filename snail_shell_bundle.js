@@ -1029,12 +1029,14 @@ var camera, scene, renderer;
 var cameraControls, effectController;
 var clock = new THREE.Clock();
 
-// snail params
+// snail geometry
 var numTurns = 5.;            // number of spiral turns of the shell
 var numRingsPer2Pi = 16;      // shell 'resolution' in longitudinal direction
 var numPointsPerRing = 16;    // shell 'resolution' in tangential direction
 var rad0 = 1.0;               // radius of the first shell ring
 var radDecayPer2Pi = 0.3;     // ... each ring at level i is 0.3 times smaller than corresponding rings at level i-1
+
+// snail texture
 var textureName;              // current texture name
 var textureLongRepeats = 4.7; // # texture repeats in longitudinal direction per level (2pi)
 var textureTangRepeats = 2;   // # texture repeats in tangential direction
@@ -1042,22 +1044,163 @@ var textureTangOffset = 0.;   // texture offset in tangential direction
 var texture;       // current texture; assigend in `init()`, updated in `render()`
 var textures = []; // array of preloaded textures; assigned in `init()`
 
+// dynamic pattern
+var dynamic = "no";
+var p = [];
+p.f = 0.0140;
+p.k = 0.0450;
+p.D = [1.0, 0.5, 0];
+p.delta = 2.0;
+p.height = 128;
+p.width = 128;
+var timer = 0.0;
+var x;
 
-function addAxes(scale) {
-    scale = (scale === undefined) ? 100:scale;
-    var axGeometry = new THREE.CylinderGeometry(scale*0.001,scale*0.001,scale*1,32);
-    var xMat = new THREE.MeshPhongMaterial( {color: 0xFF0000} );
-    var xAx = new THREE.Mesh(axGeometry, xMat);
-    xAx.rotation.z = Math.PI / 2;
-    scene.add(xAx);
-    var zMat = new THREE.MeshPhongMaterial( {color: 0x00FF00} );
-    var zAx = new THREE.Mesh(axGeometry, zMat);
-    zAx.rotation.x = Math.PI / 2;
-    scene.add(zAx);
-    var yMat = new THREE.MeshPhongMaterial( {color: 0x0000FF} );
-    var yAx = new THREE.Mesh(axGeometry, yMat);
-    scene.add(yAx);
+// ----------------------------------------------------------------------------------------
+
+function initTextureArray(x, p) {
+    x = new Array(p.height * p.width * 3);
+    for (var i = 0; i < p.height * p.width; i++) {
+        var stride = i * 3;
+
+        x[stride + 0] = 1.; // prey is everywhere
+        x[stride + 1] = 0.; // predators are not there yet
+        x[stride + 2] = 0.1; // dummy is always 0.5
+
+        // roll again for predator
+        var roll = Math.random();
+        if ( roll < 1/1000 ) {
+            x[stride + 1] = 1.; // predator
+        }
+    }
+    return x;
 }
+
+function eulerForwardStep(dxdt, x, deltaT, p) {
+    var k1 = dxdt(x, p);
+    for (var i = 0; i < p.height*p.width*3; i++) {
+        x[i] += k1[i] * deltaT;
+    }
+    return x;
+}
+
+function rungeKutta2Step(dxdt, x, deltaT, p) {
+    var k1 = dxdt(x,   p);
+
+    var xk1 = new Array(p.width * p.height * 3);
+    for (var i = 0; i < p.height*p.width*3; i++) {
+        xk1[i] = x[i] + 0.5 * k1[i] * deltaT;
+    }
+    var k2 = dxdt(xk1, p);
+
+    for (var i = 0; i < p.height*p.width*3; i++) {
+        x[i] += k2[i] * deltaT;
+    }
+    
+    return x;
+}
+
+function setDiffusionTerm(diffusion, x, p) {
+    // diffusion:
+    // convolve each channel with the kernel while ignoring the edges (no flux over the edges)
+    // kernel = [[0.05, 0.20, 0.05],
+    //           [0.20,-1.00, 0.20],
+    //           [0.05, 0.20, 0.05]] 
+    for (var h = 0; h < p.height; h++) {
+        for (var w = 0; w < p.width; w++) {
+            var stride = (h * p.width + w) * 3;            
+
+            for (var i = 0; i < 3; i++) {
+                diffusion[stride + i] = -p.D[i]/p.delta/p.delta * 1.0 * x[stride + i];
+                if (stride >= p.width*3) {
+                    diffusion[stride + i] += p.D[i]/p.delta/p.delta * 0.2 * x[stride + i - p.width*3]; // top
+                } else {
+                    diffusion[stride + i] += p.D[i]/p.delta/p.delta * 0.2 * x[stride + i];
+                }
+                if (stride < (x.length - p.width*3)) {
+                    diffusion[stride + i] += p.D[i]/p.delta/p.delta * 0.2 * x[stride + i + p.width*3]; // bottom
+                } else {
+                    diffusion[stride + i] += p.D[i]/p.delta/p.delta * 0.2 * x[stride + i];
+                }
+                if ((stride % p.width*3) != 0) {
+                    diffusion[stride + i] += p.D[i]/p.delta/p.delta * 0.2 * x[stride + i - 3]; // left
+                } else {
+                    diffusion[stride + i] += p.D[i]/p.delta/p.delta * 0.2 * x[stride + i];
+                }
+                if (((stride + 3) % p.width*3) != 0) {
+                    diffusion[stride + i] += p.D[i]/p.delta/p.delta * 0.2 * x[stride + i + 3]; // right
+                } else {
+                    diffusion[stride + i] += p.D[i]/p.delta/p.delta * 0.2 * x[stride + i];
+                }
+
+                if ((stride >= p.width*3) && ((stride % p.width*3) != 0)) {
+                    diffusion[stride + i] += p.D[i]/p.delta/p.delta * 0.05 * x[stride + i - p.width*3 - 3]; // top-left
+                } else {
+                    diffusion[stride + i] += p.D[i]/p.delta/p.delta * 0.05 * x[stride + i];
+                }
+                if ((stride >= p.width*3) && (((stride + 3) % p.width*3) != 0)) {
+                    diffusion[stride + i] += p.D[i]/p.delta/p.delta * 0.05 * x[stride + i - p.width*3 + 3]; // top-right
+                } else {
+                    diffusion[stride + i] += p.D[i]/p.delta/p.delta * 0.05 * x[stride + i];
+                }
+                if ((stride < (x.length - p.width*3)) && ((stride % p.width*3) != 0)) {
+                    diffusion[stride + i] += p.D[i]/p.delta/p.delta * 0.05 * x[stride + i + p.width*3 - 3]; // bottom-left
+                } else {
+                    diffusion[stride + i] += p.D[i]/p.delta/p.delta * 0.05 * x[stride + i];
+                }
+                if ((stride < (x.length - p.width*3)) && (((stride + 3) % p.width*3) != 0)) {
+                    diffusion[stride + i] += p.D[i]/p.delta/p.delta * 0.05 * x[stride + i + p.width*3 + 3]; // bottom-right
+                } else {
+                    diffusion[stride + i] += p.D[i]/p.delta/p.delta * 0.05 * x[stride + i];
+                }
+            }   
+            //console.log(`${stride}, ${p.D}, ${p.delta}, r:${x[stride]}, g:${x[stride+1]}, b:${x[stride+2]}`);         
+        }
+    }  
+    
+}
+
+function setGrayScottReactionTerm(reaction, x, p) {
+    for (var i = 0; i < p.height * p.width; i++) {
+        var stride = i * 3;
+
+        var a = x[stride + 0];
+        var b = x[stride + 1];
+
+        reaction[stride + 0] = -a * b * b + p.f * (1 - a);    // prey
+        reaction[stride + 1] =  a * b * b - (p.k + p.f) * b;  // predator
+        reaction[stride + 2] =  2.*reaction[stride + 0];      // dummy channel
+    }
+    console.log(`${Math.min.apply(null, reaction)}, ${Math.max.apply(null, reaction)}`);
+}
+
+function dxdtGrayScott(x, p) {
+    var total     = new Array(p.height * p.width * 3);
+    var diffusion = new Array(p.height * p.width * 3);
+    var reaction  = new Array(p.height * p.width * 3);
+
+    setDiffusionTerm(diffusion, x, p);
+    setGrayScottReactionTerm(reaction, x, p);
+
+    for (var i = 0; i < p.height*p.width*3; i++) {
+        total[i] = diffusion[i] + reaction[i];
+    }
+    return total;
+}
+
+function array2texture(x, p, steepness, midpoint) {
+
+    var data = new Uint8Array( p.height * p.width * 3 );
+    for (var i = 0; i < p.width * p.height * 3; i++) {
+        data[i] = Math.floor( 255. / (1 + Math.exp(-steepness * (x[i] - midpoint))) );
+    }
+
+    return new THREE.DataTexture( data, p.width, p.height, THREE.RGBFormat );
+}
+
+
+
+// ----------------------------------------------------------------------------------------
 
 function rotationMatrixAroundY(angle) {
     var mtx = new THREE.Matrix3();
@@ -1082,16 +1225,16 @@ function setSnailShellVertices(geometry, numTurns, numRingsPer2Pi, numPointsPerR
 	Therefore,
 	  df = f2pi^(1/(numRingsPer2Pi-1))
 
-	The center of each ring is slightely above the center of previous ring, 
+	The center of each ring is slightely above the center of the previous ring, 
 	so that if arbitrary ring with radius R is at a height 0 
 	the ring right above it (with radius f2pi * R) would be at a height 
-	  sqrt( r^2*(1 + f2pi)^2 - r^2*(1 - f2pi)^2  ) = 2r sqrt(f2pi)
+	  sqrt( R^2*(1 + f2pi)^2 - R^2*(1 - f2pi)^2  ) = 2R sqrt(f2pi)
 	We can say that each ring rises dh * df * R above the previous ring with radius R.
 	Therefore, if arbitrary ring with radius R is at height 0
-	the right right above it (with radius f2pi * R) would be at a height
+	the ring right above it (with radius f2pi * R) would be at a height
 	  R * dh * sum(f2pi^(i/(numRingsPer2Pi)) for i in range(numRingsPer2Pi))
 	Therefore,
-	  dh =  2r sqrt(f2pi) / sum(f2pi^(i/(numRingsPer2Pi)) for i in range(numRingsPer2Pi))
+	  dh =  2R sqrt(f2pi) / sum(f2pi^(i/(numRingsPer2Pi)) for i in range(numRingsPer2Pi))
 	Notice, that dh is not the actual rise, but the relative rise (relative wrt current radius),
 	absolute rise would be dh * R
 	*/
@@ -1192,7 +1335,7 @@ function setSnailShellFaces(geometry, numTurns, numRingsPer2Pi, numPointsPerRing
 function setTexture(geometry, numTurns, numRingsPer2Pi, numPointsPerRing, 
 	                rad0, radDecayPer2Pi, 
                     texture, textureLongRepeats, textureTangRepeats) {
-    // assig7n undefined params
+    // assign undefined params
     numTurns = (numTurns === undefined) ? 5 : numTurns;
     numRingsPer2Pi = (numRingsPer2Pi === undefined) ? 16 : numRingsPer2Pi;
     numPointsPerRing = (numPointsPerRing === undefined) ? 16 : numPointsPerRing;
@@ -1254,6 +1397,22 @@ function makeSnailShell(numTurns, numRingsPer2Pi, numPointsPerRing,
     return snail;
 }
 
+// ----------------------------------------------------------------------------------------
+function addAxes(scale) {
+    scale = (scale === undefined) ? 100:scale;
+    var axGeometry = new THREE.CylinderGeometry(scale*0.001,scale*0.001,scale*1,32);
+    var xMat = new THREE.MeshPhongMaterial( {color: 0xFF0000} );
+    var xAx = new THREE.Mesh(axGeometry, xMat);
+    xAx.rotation.z = Math.PI / 2;
+    scene.add(xAx);
+    var zMat = new THREE.MeshPhongMaterial( {color: 0x00FF00} );
+    var zAx = new THREE.Mesh(axGeometry, zMat);
+    zAx.rotation.x = Math.PI / 2;
+    scene.add(zAx);
+    var yMat = new THREE.MeshPhongMaterial( {color: 0x0000FF} );
+    var yAx = new THREE.Mesh(axGeometry, yMat);
+    scene.add(yAx);
+}
 
 function fillScene() {
     scene = new THREE.Scene();
@@ -1326,7 +1485,6 @@ function addToDOM() {
     container.appendChild( renderer.domElement );
 }
 
-
 function animate() {
     window.requestAnimationFrame(animate);
     render();
@@ -1335,6 +1493,7 @@ function animate() {
 function render() {
     var delta = clock.getDelta();
     cameraControls.update(delta);
+    timer += clock.getDelta();
 	
     // update controls only if toggled
     if (radDecayPer2Pi !== effectController.raddecay ||
@@ -1347,13 +1506,14 @@ function render() {
         radDecayPer2Pi = effectController.raddecay;
         numTurns = effectController.turns;
 		
-        // update texture
-        textureTangOffset = effectController.textangoffset;
-        textureName = effectController.texname;		
-        texture = textures[textureName];
-        //debugger;
+        // update static texture        
+        if (effectController.dynamic === "no") {
+            textureName = effectController.texname;		
+            texture = textures[textureName];
+        }        
 
-        // update num of texture repeats
+        // update num of texture repeats, offset        
+        textureTangOffset = effectController.textangoffset;
         textureTangRepeats = effectController.textangrepeats;
         textureLongRepeats = effectController.texlongrepeats;
 
@@ -1362,7 +1522,26 @@ function render() {
         addAxes(25);
     }	
 
-	
+    if (dynamic !== effectController.dynamic) {        
+        dynamic = effectController.dynamic;
+
+        // initiate texture array
+        if (effectController.dynamic == "yes") {            
+            x = initTextureArray(x, p);        
+        }
+    }
+    
+    if (effectController.dynamic === "yes" && timer > 1/60/20) {
+        timer = 0.0; // reset timer
+        
+        x = rungeKutta2Step(dxdtGrayScott, x, 2.0, p); // updates x
+        texture = array2texture(x, p, 10., 0.6);
+
+        // reset the scene
+        fillScene(); // lights and shell and added here
+        addAxes(25);
+    }
+
     renderer.render(scene, camera);
 }
 
@@ -1377,7 +1556,9 @@ function setupGui() {
         texlongrepeats: 4.7,
         textangrepeats: 2,
         textangoffset: 0.,
-        texname: "angelfish0"
+        texname: "angelfish0",
+
+        dynamic: "no"
     };
 
     var gui = new dat.GUI();
@@ -1385,7 +1566,7 @@ function setupGui() {
     h.add( effectController, "raddecay", 0.0, 1.0, 0.01).name("radius decay");
     h.add( effectController, "turns", 0.1, 10.0, 0.1).name("#turns");
 
-    h = gui.addFolder("Textures");
+    h = gui.addFolder("Texture");
     h.add( effectController, "texlongrepeats", 1, 30, 0.01).name("#long. repeats");
     h.add( effectController, "textangrepeats", 2, 12, 2).name("#tang. repeats");
     h.add( effectController, "textangoffset", 0., 2., 0.01).name("#tang. offset");
@@ -1401,6 +1582,7 @@ function setupGui() {
                              "predprey0",
                              "predprey1"
                             ]).name("texture name");
+    h.add( effectController, "dynamic", ["yes", "no"]).name("dynamic");
 }
 
 // ----------------------------------------------------------------------------------------
