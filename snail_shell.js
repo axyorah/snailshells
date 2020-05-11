@@ -88,48 +88,40 @@ function setDiffusionTerm(diffusion, x, p) {
             var stride = (h * p.width + w) * 3;            
 
             for (var i = 0; i < 3; i++) {
-                diffusion[stride + i] = -p.D[i]/p.delta/p.delta * 1.0 * x[stride + i];
+                diffusion[stride + i] = 0.0;
                 if (stride >= p.width*3) {
-                    diffusion[stride + i] += p.D[i]/p.delta/p.delta * 0.2 * x[stride + i - p.width*3]; // top
-                } else {
-                    diffusion[stride + i] += p.D[i]/p.delta/p.delta * 0.2 * x[stride + i];
-                }
+                    diffusion[stride + i] += p.D[i]/p.delta/p.delta * 0.2 * x[stride + i - p.width*3]; // from top
+                    diffusion[stride + i] -= p.D[i]/p.delta/p.delta * 0.2 * x[stride + i]; // to top
+                } 
                 if (stride < (x.length - p.width*3)) {
-                    diffusion[stride + i] += p.D[i]/p.delta/p.delta * 0.2 * x[stride + i + p.width*3]; // bottom
-                } else {
-                    diffusion[stride + i] += p.D[i]/p.delta/p.delta * 0.2 * x[stride + i];
-                }
+                    diffusion[stride + i] += p.D[i]/p.delta/p.delta * 0.2 * x[stride + i + p.width*3]; // from bottom
+                    diffusion[stride + i] -= p.D[i]/p.delta/p.delta * 0.2 * x[stride + i]; // to bottom
+                } 
                 if ((stride % p.width*3) != 0) {
-                    diffusion[stride + i] += p.D[i]/p.delta/p.delta * 0.2 * x[stride + i - 3]; // left
-                } else {
-                    diffusion[stride + i] += p.D[i]/p.delta/p.delta * 0.2 * x[stride + i];
-                }
+                    diffusion[stride + i] += p.D[i]/p.delta/p.delta * 0.2 * x[stride + i - 3]; // from left
+                    diffusion[stride + i] -= p.D[i]/p.delta/p.delta * 0.2 * x[stride + i]; // to left
+                } 
                 if (((stride + 3) % p.width*3) != 0) {
-                    diffusion[stride + i] += p.D[i]/p.delta/p.delta * 0.2 * x[stride + i + 3]; // right
-                } else {
-                    diffusion[stride + i] += p.D[i]/p.delta/p.delta * 0.2 * x[stride + i];
-                }
+                    diffusion[stride + i] += p.D[i]/p.delta/p.delta * 0.2 * x[stride + i + 3]; // from right
+                    diffusion[stride + i] -= p.D[i]/p.delta/p.delta * 0.2 * x[stride + i]; // to right
+                } 
 
                 if ((stride >= p.width*3) && ((stride % p.width*3) != 0)) {
-                    diffusion[stride + i] += p.D[i]/p.delta/p.delta * 0.05 * x[stride + i - p.width*3 - 3]; // top-left
-                } else {
-                    diffusion[stride + i] += p.D[i]/p.delta/p.delta * 0.05 * x[stride + i];
-                }
+                    diffusion[stride + i] += p.D[i]/p.delta/p.delta * 0.05 * x[stride + i - p.width*3 - 3]; // from top-left
+                    diffusion[stride + i] -= p.D[i]/p.delta/p.delta * 0.05 * x[stride + i]; // to top-left
+                } 
                 if ((stride >= p.width*3) && (((stride + 3) % p.width*3) != 0)) {
-                    diffusion[stride + i] += p.D[i]/p.delta/p.delta * 0.05 * x[stride + i - p.width*3 + 3]; // top-right
-                } else {
-                    diffusion[stride + i] += p.D[i]/p.delta/p.delta * 0.05 * x[stride + i];
-                }
+                    diffusion[stride + i] += p.D[i]/p.delta/p.delta * 0.05 * x[stride + i - p.width*3 + 3]; // from top-right
+                    diffusion[stride + i] -= p.D[i]/p.delta/p.delta * 0.05 * x[stride + i]; // to top-right
+                } 
                 if ((stride < (x.length - p.width*3)) && ((stride % p.width*3) != 0)) {
-                    diffusion[stride + i] += p.D[i]/p.delta/p.delta * 0.05 * x[stride + i + p.width*3 - 3]; // bottom-left
-                } else {
-                    diffusion[stride + i] += p.D[i]/p.delta/p.delta * 0.05 * x[stride + i];
-                }
+                    diffusion[stride + i] += p.D[i]/p.delta/p.delta * 0.05 * x[stride + i + p.width*3 - 3]; // from bottom-left
+                    diffusion[stride + i] -= p.D[i]/p.delta/p.delta * 0.05 * x[stride + i]; // to bottom-left
+                } 
                 if ((stride < (x.length - p.width*3)) && (((stride + 3) % p.width*3) != 0)) {
-                    diffusion[stride + i] += p.D[i]/p.delta/p.delta * 0.05 * x[stride + i + p.width*3 + 3]; // bottom-right
-                } else {
-                    diffusion[stride + i] += p.D[i]/p.delta/p.delta * 0.05 * x[stride + i];
-                }
+                    diffusion[stride + i] += p.D[i]/p.delta/p.delta * 0.05 * x[stride + i + p.width*3 + 3]; // from bottom-right
+                    diffusion[stride + i] -= p.D[i]/p.delta/p.delta * 0.05 * x[stride + i]; // to bottom-right
+                } 
             }   
             //console.log(`${stride}, ${p.D}, ${p.delta}, r:${x[stride]}, g:${x[stride+1]}, b:${x[stride+2]}`);         
         }
