@@ -84,6 +84,37 @@ function rungeKutta2Step(dxdt, x, deltaT, p) {
     return x;
 }
 
+function rungeKutta4Step(dxdt, x, deltaT, p) {
+    var k1 = dxdt(x, p);
+
+    var xk1 = new Array(p.width * p.height * 3);
+    for (var i = 0; i < p.width * p.height * 3; i++) {
+        xk1[i] = x[i] + 0.5 * deltaT * k1[i];
+    }
+
+    var k2 = dxdt(xk1, p);
+
+    var xk2 = new Array(p.width * p.height * 3);
+    for (var i = 0; i < p.width * p.height * 3; i++) {
+        xk2[i] = x[i] + 0.5 * deltaT * k2[i];
+    }
+
+    var k3 = dxdt(xk2, p);
+
+    var xk3 = new Array(p.width * p.height * 3);
+    for (var i = 0; i < p.width * p.height * 3; i++) {
+        xk3[i] = x[i] + deltaT * k3[i];
+    }
+
+    var k4 = dxdt(xk3, p);
+
+    for (var i = 0; i < p.width * p.height * 3; i++) {
+        x[i] += 1./6. * (k1[i] + 2.*k2[i] + 2.*k3[i] + k4[i]);
+    }
+
+    return x;
+}
+
 function setDiffusionTerm(diffusion, x, p) {
     // diffusion:
     // convolve each channel with the kernel while ignoring the edges (no flux over the edges)
@@ -502,10 +533,11 @@ function render() {
         }
     }
     
-    if (effectController.dynamic === "yes" && timer > 1/60/20) {
+    if (effectController.dynamic === "yes" && timer > 1/60/30) {
         timer = 0.0; // reset timer
         
-        x = rungeKutta2Step(dxdtGrayScott, x, 2.0, p); // updates x
+        // update array/texture
+        x = rungeKutta4Step(dxdtGrayScott, x, 2.0, p); 
         texture = array2texture(x, p, 10., 0.6);
 
         // reset the scene
