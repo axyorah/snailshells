@@ -1057,7 +1057,7 @@ p.D = new Array(3);
 p.D[prey] = 1.0;
 p.D[pred] = 0.5;
 p.D[dumm] = 2.0;
-p.delta = 2.0;
+p.delta = 2.5;
 p.height = 128;
 p.width = 128;
 var timer = 0.0;
@@ -1495,6 +1495,7 @@ function init() {
     textures.grayscottspirals1 = new THREE.TextureLoader().load("imgs/grayscott-spirals1.png");
     textures.predprey0         = new THREE.TextureLoader().load("imgs/predprey0.png");
     textures.predprey1         = new THREE.TextureLoader().load("imgs/predprey1.png");
+    textures.dynamic           = new THREE.DataTexture( initTextureArray(x, p), p.width, p.height, THREE.RGBAFormat );
 
     textureName = "angelfish0";
     texture = textures[textureName]; // init
@@ -1532,10 +1533,10 @@ function render() {
         numTurns = effectController.turns;
 		
         // update static texture        
-        if (effectController.dynamic === "no") {
-            textureName = effectController.texname;		
+        textureName = effectController.texname;	
+        if (effectController.texname !== "dynamic") {            	
             texture = textures[textureName];
-        }        
+        } 
 
         // update num of texture repeats, offset        
         textureTangOffset = effectController.textangoffset;
@@ -1547,19 +1548,16 @@ function render() {
         addAxes(25);
     }	
 
-    if (dynamic !== effectController.dynamic) {        
-        dynamic = effectController.dynamic;
-
-        // initiate texture array
-        if (effectController.dynamic == "yes") {            
-            x = initTextureArray(x, p);        
-        }
+    if (effectController.texname === "dynamic" &&  dynamic === "no") {        
+        dynamic = "yes";          
+        x = initTextureArray(x, p);
     }
     
-    if (effectController.dynamic === "yes" && timer > 1/60/30) {
+    if (effectController.texname === "dynamic" && timer > 1/60/30) {
         timer = 0.0; // reset timer
         
-        x = rungeKutta4Step(dxdtGrayScott, x, 2.0, p); // updates x
+        // update array/texture
+        x = rungeKutta4Step(dxdtGrayScott, x, 2.0, p); 
         texture = array2texture(x, p, 10., 0.6);
 
         // reset the scene
@@ -1581,9 +1579,7 @@ function setupGui() {
         texlongrepeats: 4.7,
         textangrepeats: 2,
         textangoffset: 0.,
-        texname: "angelfish0",
-
-        dynamic: "no"
+        texname: "angelfish0"
     };
 
     var gui = new dat.GUI();
@@ -1605,9 +1601,9 @@ function setupGui() {
                              "grayscottspirals0",
                              "grayscottspirals1",
                              "predprey0",
-                             "predprey1"
+                             "predprey1",
+                             "dynamic"
                             ]).name("texture name");
-    h.add( effectController, "dynamic", ["yes", "no"]).name("dynamic");
 }
 
 // ----------------------------------------------------------------------------------------
