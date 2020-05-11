@@ -1045,11 +1045,18 @@ var texture;       // current texture; assigend in `init()`, updated in `render(
 var textures = []; // array of preloaded textures; assigned in `init()`
 
 // dynamic pattern
+var prey = 2; // color channels
+var pred = 1;
+var dumm = 0;
+
 var dynamic = "no";
 var p = [];
 p.f = 0.0140;
 p.k = 0.0450;
-p.D = [1.0, 0.5, 0];
+p.D = new Array(3);
+p.D[prey] = 1.0;
+p.D[pred] = 0.5;
+p.D[dumm] = 2.0;
 p.delta = 2.0;
 p.height = 128;
 p.width = 128;
@@ -1063,14 +1070,14 @@ function initTextureArray(x, p) {
     for (var i = 0; i < p.height * p.width; i++) {
         var stride = i * 3;
 
-        x[stride + 0] = 1.; // prey is everywhere
-        x[stride + 1] = 0.; // predators are not there yet
-        x[stride + 2] = 0.1; // dummy is always 0.5
+        x[stride + prey] = 1.; // prey is everywhere
+        x[stride + pred] = 0.; // predators are not there yet
+        x[stride + dumm] = 0.5; // dummy can be anything...
 
         // roll again for predator
         var roll = Math.random();
         if ( roll < 1/1000 ) {
-            x[stride + 1] = 1.; // predator
+            x[stride + pred] = 1.; // predator are assigned to some texels
         }
     }
     return x;
@@ -1152,14 +1159,13 @@ function setGrayScottReactionTerm(reaction, x, p) {
     for (var i = 0; i < p.height * p.width; i++) {
         var stride = i * 3;
 
-        var a = x[stride + 0];
-        var b = x[stride + 1];
+        var a = x[stride + prey];
+        var b = x[stride + pred];
 
-        reaction[stride + 0] = -a * b * b + p.f * (1 - a);    // prey
-        reaction[stride + 1] =  a * b * b - (p.k + p.f) * b;  // predator
-        reaction[stride + 2] =  2.*reaction[stride + 0];      // dummy channel
+        reaction[stride + prey] = -a * b * b + p.f * (1 - a);    // prey
+        reaction[stride + pred] =  a * b * b - (p.k + p.f) * b;  // predator
+        reaction[stride + dumm] =  0.7*reaction[stride + prey];  // dummy channel
     }
-    //console.log(`${Math.min.apply(null, reaction)}, ${Math.max.apply(null, reaction)}`);
 }
 
 function dxdtGrayScott(x, p) {
