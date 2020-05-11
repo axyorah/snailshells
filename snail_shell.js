@@ -533,6 +533,10 @@ function render() {
     
     if (effectController.texname === "dynamic" && timer > 1/60/30) {
         timer = 0.0; // reset timer
+
+        // update Gray-Scott params
+        p.f = effectController.f;
+        p.k = effectController.k;
         
         // update array/texture
         x = rungeKutta4Step(dxdtGrayScott, x, 2.0, p); 
@@ -557,7 +561,10 @@ function setupGui() {
         texlongrepeats: 4.7,
         textangrepeats: 2,
         textangoffset: 0.,
-        texname: "angelfish0"
+        texname: "angelfish0",
+
+        f: 0.0140,
+        k: 0.0450
     };
 
     var gui = new dat.GUI();
@@ -582,6 +589,11 @@ function setupGui() {
                              "predprey1",
                              "dynamic"
                             ]).name("texture name");
+
+    h = gui.addFolder("Dynamic Texture Only");
+    h.add( effectController, "f", 0.0100, 0.0650, 0.0001).name("f ('prey' growth)");
+    h.add( effectController, "k", 0.0100, 0.0650, 0.0001).name("k ('pred' decay)");
+
 }
 
 // ----------------------------------------------------------------------------------------
