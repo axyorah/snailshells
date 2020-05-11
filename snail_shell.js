@@ -511,7 +511,8 @@ function render() {
 		
         // update static texture        
         textureName = effectController.texname;	
-        if (effectController.texname !== "dynamic") {            	
+        if (effectController.texname !== "dynamic") {  
+            dynamic = "no";          	
             texture = textures[textureName];
         } 
 
