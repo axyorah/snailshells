@@ -1045,22 +1045,24 @@ var texture;       // current texture; assigend in `init()`, updated in `render(
 var textures = []; // array of preloaded textures; assigned in `init()`
 
 // dynamic pattern
+var deltaT = 2.0; // time step (increasing it can destabilize solution, depending on p.delta)
 var prey = 2; // color channels
 var pred = 1;
 var dumm = 0;
 
-var dynamic = "no";
+var dynamic = false;
 var p = [];
-p.f = 0.0140;
-p.k = 0.0450;
-p.D = new Array(3);
+p.f = 0.0140; // growth rate of "prey"
+p.k = 0.0450; // decay rate of "predator"
+p.D = new Array(3); // diffusion coeff array
 p.D[prey] = 1.0;
 p.D[pred] = 0.5;
 p.D[dumm] = 2.0;
-p.delta = 2.5;
-p.height = 128;
-p.width = 128;
-var timer = 0.0;
+p.delta = 2.5; // spatial step (texel size in "physical" units)
+p.height = 128; // texture height in texels
+p.width = 128; // texture width in texels
+var timer = 0.0; // time for dynamic texture update
+var timerThreshold = 1/60./30.; // update texture ~30 times per sec
 var x;
 
 // ----------------------------------------------------------------------------------------
@@ -1535,7 +1537,7 @@ function render() {
         // update static texture        
         textureName = effectController.texname;	
         if (effectController.texname !== "dynamic") {  
-            dynamic = "no";          	
+            dynamic = false;          	
             texture = textures[textureName];
         } 
 
@@ -1549,20 +1551,20 @@ function render() {
         addAxes(25);
     }	
 
-    if (effectController.texname === "dynamic" &&  dynamic === "no") {        
-        dynamic = "yes";          
+    if (effectController.texname === "dynamic" &&  dynamic === false) {        
+        dynamic = true;          
         x = initTextureArray(x, p);
     }
     
-    if (effectController.texname === "dynamic" && timer > 1/60/30) {
-        timer = 0.0; // reset timer
+    if (effectController.texname === "dynamic" && timer > timerThreshold) {
+        timer -= timerThreshold; // reset timer
 
         // update Gray-Scott params
         p.f = effectController.f;
         p.k = effectController.k;
         
         // update array/texture
-        x = rungeKutta4Step(dxdtGrayScott, x, 2.0, p); 
+        x = rungeKutta4Step(dxdtGrayScott, x, deltaT, p); 
         texture = array2texture(x, p, 10., 0.6);
 
         // reset the scene
