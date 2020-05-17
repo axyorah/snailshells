@@ -1,5 +1,6 @@
 // OrbitControls can only be used if bundled version of this file was made with `browserify`
 var OrbitControls = require('three-orbit-controls')(THREE); // allows to control camera position
+var PdeUtils = require('./modules/pdeutils.js'); // custom functions for solving PDEs
 
 // general
 var camera, scene, renderer;
@@ -62,109 +63,6 @@ function initTextureArray(x, p) {
     return x;
 }
 
-function eulerForwardStep(dxdt, x, deltaT, p) {
-    var k1 = dxdt(x, p);
-    for (var i = 0; i < p.height*p.width*3; i++) {
-        x[i] += k1[i] * deltaT;
-    }
-    return x;
-}
-
-function rungeKutta2Step(dxdt, x, deltaT, p) {
-    var k1 = dxdt(x,   p);
-
-    var xk1 = new Array(p.width * p.height * 3);
-    for (var i = 0; i < p.height*p.width*3; i++) {
-        xk1[i] = x[i] + 0.5 * k1[i] * deltaT;
-    }
-    var k2 = dxdt(xk1, p);
-
-    for (var i = 0; i < p.height*p.width*3; i++) {
-        x[i] += k2[i] * deltaT;
-    }
-    
-    return x;
-}
-
-function rungeKutta4Step(dxdt, x, deltaT, p) {
-    var k1 = dxdt(x, p);
-
-    var xk1 = new Array(p.width * p.height * 3);
-    for (var i = 0; i < p.width * p.height * 3; i++) {
-        xk1[i] = x[i] + 0.5 * deltaT * k1[i];
-    }
-
-    var k2 = dxdt(xk1, p);
-
-    var xk2 = new Array(p.width * p.height * 3);
-    for (var i = 0; i < p.width * p.height * 3; i++) {
-        xk2[i] = x[i] + 0.5 * deltaT * k2[i];
-    }
-
-    var k3 = dxdt(xk2, p);
-
-    var xk3 = new Array(p.width * p.height * 3);
-    for (var i = 0; i < p.width * p.height * 3; i++) {
-        xk3[i] = x[i] + deltaT * k3[i];
-    }
-
-    var k4 = dxdt(xk3, p);
-
-    for (var i = 0; i < p.width * p.height * 3; i++) {
-        x[i] += 1./6. * (k1[i] + 2.*k2[i] + 2.*k3[i] + k4[i]);
-    }
-
-    return x;
-}
-
-function setDiffusionTerm(diffusion, x, p) {
-    // diffusion:
-    // convolve each channel with the kernel while ignoring the edges (no flux over the edges)
-    // kernel = [[0.05, 0.20, 0.05],
-    //           [0.20,-1.00, 0.20],
-    //           [0.05, 0.20, 0.05]] 
-    for (var j = 0; j < p.width * p.height; j++) {
-        var stride = j * 3;           
-
-        for (var i = 0; i < 3; i++) {
-            diffusion[stride + i] = 0.0;
-            if (stride >= p.width*3) {
-                diffusion[stride + i] += p.D[i]/p.delta/p.delta * 0.2 * x[stride + i - p.width*3]; // from top
-                diffusion[stride + i] -= p.D[i]/p.delta/p.delta * 0.2 * x[stride + i]; // to top                
-            } 
-            if (stride < (x.length - p.width*3)) {
-                diffusion[stride + i] += p.D[i]/p.delta/p.delta * 0.2 * x[stride + i + p.width*3]; // from bottom
-                diffusion[stride + i] -= p.D[i]/p.delta/p.delta * 0.2 * x[stride + i]; // to bottom
-            } 
-            if ((stride % p.width*3) != 0) {
-                diffusion[stride + i] += p.D[i]/p.delta/p.delta * 0.2 * x[stride + i - 3]; // from left
-                diffusion[stride + i] -= p.D[i]/p.delta/p.delta * 0.2 * x[stride + i]; // to left
-            } 
-            if (((stride + 3) % p.width*3) != 0) {
-                diffusion[stride + i] += p.D[i]/p.delta/p.delta * 0.2 * x[stride + i + 3]; // from right
-                diffusion[stride + i] -= p.D[i]/p.delta/p.delta * 0.2 * x[stride + i]; // to right
-            } 
-
-            if ((stride >= p.width*3) && ((stride % p.width*3) != 0)) {
-                diffusion[stride + i] += p.D[i]/p.delta/p.delta * 0.05 * x[stride + i - p.width*3 - 3]; // from top-left
-                diffusion[stride + i] -= p.D[i]/p.delta/p.delta * 0.05 * x[stride + i]; // to top-left
-            } 
-            if ((stride >= p.width*3) && (((stride + 3) % p.width*3) != 0)) {
-                diffusion[stride + i] += p.D[i]/p.delta/p.delta * 0.05 * x[stride + i - p.width*3 + 3]; // from top-right
-                diffusion[stride + i] -= p.D[i]/p.delta/p.delta * 0.05 * x[stride + i]; // to top-right
-            } 
-            if ((stride < (x.length - p.width*3)) && ((stride % p.width*3) != 0)) {
-                diffusion[stride + i] += p.D[i]/p.delta/p.delta * 0.05 * x[stride + i + p.width*3 - 3]; // from bottom-left
-                diffusion[stride + i] -= p.D[i]/p.delta/p.delta * 0.05 * x[stride + i]; // to bottom-left
-            } 
-            if ((stride < (x.length - p.width*3)) && (((stride + 3) % p.width*3) != 0)) {
-                diffusion[stride + i] += p.D[i]/p.delta/p.delta * 0.05 * x[stride + i + p.width*3 + 3]; // from bottom-right
-                diffusion[stride + i] -= p.D[i]/p.delta/p.delta * 0.05 * x[stride + i]; // to bottom-right
-            } 
-        }                  
-    }      
-}
-
 function setGrayScottReactionTerm(reaction, x, p) {
     for (var i = 0; i < p.height * p.width; i++) {
         var stride = i * 3;
@@ -183,7 +81,7 @@ function dxdtGrayScott(x, p) {
     var diffusion = new Array(p.height * p.width * 3);
     var reaction  = new Array(p.height * p.width * 3);
 
-    setDiffusionTerm(diffusion, x, p);
+    PdeUtils.setDiffusionTerm(diffusion, x, p);
     setGrayScottReactionTerm(reaction, x, p);
 
     for (var i = 0; i < p.height*p.width*3; i++) {
@@ -201,8 +99,6 @@ function array2texture(x, p, steepness, midpoint) {
 
     return new THREE.DataTexture( data, p.width, p.height, THREE.RGBFormat );
 }
-
-
 
 // ----------------------------------------------------------------------------------------
 
@@ -541,7 +437,7 @@ function render() {
         p.k = effectController.k;
         
         // update array/texture
-        x = rungeKutta4Step(dxdtGrayScott, x, deltaT, p); 
+        x = PdeUtils.rungeKutta4Step(dxdtGrayScott, x, deltaT, p); 
         texture = array2texture(x, p, 10., 0.6);
 
         // reset the scene
