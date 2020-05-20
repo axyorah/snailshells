@@ -333,7 +333,7 @@ module.exports = {
     
     setTexture: function (geometry, numTurns, numRingsPer2Pi, numPointsPerRing, 
                         rad0, radDecayPer2Pi, 
-                        texture, textureLongRepeats, textureTangRepeats) {
+                        texture, textureLongRepeats, textureTangRepeats, textureTangOffset) {
         // assign undefined params
         numTurns = (numTurns === undefined) ? 5 : numTurns;
         numRingsPer2Pi = (numRingsPer2Pi === undefined) ? 16 : numRingsPer2Pi;
@@ -1393,7 +1393,7 @@ module.exports = function( THREE ) {
 };
 
 },{}],4:[function(require,module,exports){
-// OrbitControls can only be used if bundled version of this file was made with `browserify`
+// required modules can only be used if bundled version of this file was made with `browserify`
 var OrbitControls = require('three-orbit-controls')(THREE); // allows to control camera position
 var PdeUtils = require('./modules/pdeutils.js'); // custom functions for solving PDEs
 var SnailUtils = require('./modules/snailutils.js'); // custom functions for setting up snail shell geometry/textures
@@ -1498,11 +1498,9 @@ function array2texture(x, p, steepness, midpoint) {
 
 // ----------------------------------------------------------------------------------------
 
-
-
 function makeSnailShell(numTurns, numRingsPer2Pi, numPointsPerRing, 
                         rad0, radDecayPer2Pi, 
-                        texture, textureLongRepeats, textureTangRepeats) {	
+                        texture, textureLongRepeats, textureTangRepeats, textureTangOffset) {	
     // assign undefined params
     numTurns = (numTurns === undefined) ? 5 : numTurns;
     numRingsPer2Pi = (numRingsPer2Pi === undefined) ? 16 : numRingsPer2Pi;
@@ -1514,7 +1512,8 @@ function makeSnailShell(numTurns, numRingsPer2Pi, numPointsPerRing,
     var geometry = new THREE.Geometry();
     SnailUtils.setSnailShellVertices(geometry, numTurns, numRingsPer2Pi, numPointsPerRing, rad0, radDecayPer2Pi);
     SnailUtils.setSnailShellFaces(geometry, numTurns, numRingsPer2Pi, numPointsPerRing, rad0, radDecayPer2Pi);
-    SnailUtils.setTexture(geometry, numTurns, numRingsPer2Pi, numPointsPerRing, rad0, radDecayPer2Pi, texture, textureLongRepeats, textureTangRepeats);
+    SnailUtils.setTexture(geometry, numTurns, numRingsPer2Pi, numPointsPerRing, rad0, radDecayPer2Pi, 
+                          texture, textureLongRepeats, textureTangRepeats, textureTangOffset);
 	
     // calculate normals for proper lighting
     geometry.computeVertexNormals();
@@ -1563,7 +1562,7 @@ function fillScene() {
     // SNAIL SHELL
     var snail = makeSnailShell( numTurns, numRingsPer2Pi, numPointsPerRing, 
                                 rad0, radDecayPer2Pi, 
-                                texture, textureLongRepeats, textureTangRepeats);
+                                texture, textureLongRepeats, textureTangRepeats, textureTangOffset);
     snail.castShadow = true;
     snail.receiveShadow = true;
     scene.add(snail);

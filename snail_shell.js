@@ -105,7 +105,7 @@ function array2texture(x, p, steepness, midpoint) {
 
 function makeSnailShell(numTurns, numRingsPer2Pi, numPointsPerRing, 
                         rad0, radDecayPer2Pi, 
-                        texture, textureLongRepeats, textureTangRepeats) {	
+                        texture, textureLongRepeats, textureTangRepeats, textureTangOffset) {	
     // assign undefined params
     numTurns = (numTurns === undefined) ? 5 : numTurns;
     numRingsPer2Pi = (numRingsPer2Pi === undefined) ? 16 : numRingsPer2Pi;
@@ -117,7 +117,8 @@ function makeSnailShell(numTurns, numRingsPer2Pi, numPointsPerRing,
     var geometry = new THREE.Geometry();
     SnailUtils.setSnailShellVertices(geometry, numTurns, numRingsPer2Pi, numPointsPerRing, rad0, radDecayPer2Pi);
     SnailUtils.setSnailShellFaces(geometry, numTurns, numRingsPer2Pi, numPointsPerRing, rad0, radDecayPer2Pi);
-    SnailUtils.setTexture(geometry, numTurns, numRingsPer2Pi, numPointsPerRing, rad0, radDecayPer2Pi, texture, textureLongRepeats, textureTangRepeats);
+    SnailUtils.setTexture(geometry, numTurns, numRingsPer2Pi, numPointsPerRing, rad0, radDecayPer2Pi, 
+                          texture, textureLongRepeats, textureTangRepeats, textureTangOffset);
 	
     // calculate normals for proper lighting
     geometry.computeVertexNormals();
@@ -166,7 +167,7 @@ function fillScene() {
     // SNAIL SHELL
     var snail = makeSnailShell( numTurns, numRingsPer2Pi, numPointsPerRing, 
                                 rad0, radDecayPer2Pi, 
-                                texture, textureLongRepeats, textureTangRepeats);
+                                texture, textureLongRepeats, textureTangRepeats, textureTangOffset);
     snail.castShadow = true;
     snail.receiveShadow = true;
     scene.add(snail);

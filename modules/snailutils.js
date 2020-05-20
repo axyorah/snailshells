@@ -1,4 +1,12 @@
 module.exports = {
+    /*
+    Returns rotaion matrix such that
+    matrix . vector3 = vector3 rotated by specified angle around y-axis
+    INPUTS:
+        angle: float: rotation angle in radians
+    OUTPUT:
+        THREE.Matrix3: rotation matrix
+    */
     rotationMatrixAroundY: function (angle) {
         var mtx = new THREE.Matrix3();
         mtx.set(Math.cos(angle), 0., Math.cos(Math.PI/2 + angle),			
@@ -8,8 +16,12 @@ module.exports = {
     },
     
     setSnailShellVertices: function (geometry, numTurns, numRingsPer2Pi, numPointsPerRing, 
-                                   rad0, radDecayPer2Pi) {
+                                     rad0, radDecayPer2Pi) {
         /*
+        Calculates vertex coordinates of the snail shell in xyz 
+        and uses calculated vertices to update geometry object.
+
+        Assumptions made to set up the snail shell geometry:
         Snail shell is made up of rings that are arranged in a decaying spiral:
         radii of the rings become progressively smaller.
         If arbitrary ring has a radius R the ring right above it has radius
@@ -34,6 +46,24 @@ module.exports = {
           dh =  2R sqrt(f2pi) / sum(f2pi^(i/(numRingsPer2Pi)) for i in range(numRingsPer2Pi))
         Notice, that dh is not the actual rise, but the relative rise (relative wrt current radius),
         absolute rise would be dh * R
+
+        INPUTS:
+            geometry: THREE.Geometry(): 'empty' initiated geometry object that will be updated
+            numTurns: float: number of turns of the shell spiral;
+                if not specified default 5 will be used
+            numRingsPer2Pi: int: number of rings per one spiral turn 
+                (shell resolution in longitudinal direction for one spiral turn);
+                if not specified default 16 will be used
+            numPointsPerRing: int: number of vertices in a single ring
+                (shell resolution in tangential direction);
+                if not specified default 16 will be used
+            ra0: float: radius of the first ring;
+                if not specified default 1 will be used
+            radDecayPer2Pi: float: relative radius reduction per spiral turn 
+                (0 < radDecayPer2Pi < 1)
+                if not specified default 0.3 will be used
+        OUTPUT:
+            doesn't output anything, updates geometry with vertices
         */
         // assign undefined params
         numTurns = (numTurns === undefined) ? 5 : numTurns;
@@ -84,9 +114,13 @@ module.exports = {
     },
     
     setSnailShellFaces: function (geometry, numTurns, numRingsPer2Pi, numPointsPerRing, 
-                                rad0, radDecayPer2Pi) {
+                                  rad0, radDecayPer2Pi) {
         /*
-        e.g., for numPointsPerRing = 16:   
+        Assigns face triangles using info on vertices;
+        updates geometry object
+
+        Assumptions used to assign faces:
+        e.g., for numPointsPerRing = 16 (numbers represent vertex indices):   
             | / |
            -1---17- ...
             | / |
@@ -100,6 +134,25 @@ module.exports = {
             ...
             face 30: (15, 31, 16)
             face 31: (15, 16, 0)
+
+        INPUTS:
+            geometry: THREE.Geometry(): initiated geometry object that has vertices assigned;
+                will be further updated
+            numTurns: float: number of turns of the shell spiral;
+                if not specified default 5 will be used
+            numRingsPer2Pi: int: number of rings per one spiral turn 
+                (shell resolution in longitudinal direction for one spiral turn);
+                if not specified default 16 will be used
+            numPointsPerRing: int: number of vertices in a single ring
+                (shell resolution in tangential direction);
+                if not specified default 16 will be used
+            ra0: float: radius of the first ring;
+                if not specified default 1 will be used
+            radDecayPer2Pi: float: relative radius reduction per spiral turn 
+                (0 < radDecayPer2Pi < 1)
+                if not specified default 0.3 will be used
+        OUTPUT:
+            doesn't output anything, updates geometry with faces
         */
     
         // assign undefined params
@@ -130,8 +183,38 @@ module.exports = {
     },
     
     setTexture: function (geometry, numTurns, numRingsPer2Pi, numPointsPerRing, 
-                        rad0, radDecayPer2Pi, 
-                        texture, textureLongRepeats, textureTangRepeats) {
+                          rad0, radDecayPer2Pi, 
+                          texture, textureLongRepeats, textureTangRepeats, textureTangOffset) {
+        /*
+        Assignes mirror repeated texture to snail shell
+        INPUTS:
+            geometry: THREE.Geometry(): geometry object woth vertices and faces assigned;
+                will be further updated
+            numTurns: float: number of turns of the shell spiral;
+                if not specified default 5 will be used
+            numRingsPer2Pi: int: number of rings per one spiral turn 
+                (shell resolution in longitudinal direction for one spiral turn);
+                if not specified default 16 will be used
+            numPointsPerRing: int: number of vertices in a single ring
+                (shell resolution in tangential direction);
+                if not specified default 16 will be used
+            ra0: float: radius of the first ring;
+                if not specified default 1 will be used
+            radDecayPer2Pi: float: relative radius reduction per spiral turn 
+                (0 < radDecayPer2Pi < 1)
+                if not specified default 0.3 will be used
+            texture: THREE texture object: pattern to be used as repeating texture:
+                either image loaded with THREE.TextureLoader
+                or data array made into a texture with THREE.DataTexture
+            textureLongRepeats: float: number of texture repeats per spiral turn 
+                in longitudinal direction  
+                (repeated textures will be mirrored to smoothen the transitions)
+            textureTangRepeats: int: number of texture repeats in tangential direction
+                should be a multiple of 2 (because of the mirror repeats)
+            textureTangOffset: float: relative texture offset in tangential direction
+        OUTPUT:
+            doesn't output anything, updates geometry with texture
+        */
         // assign undefined params
         numTurns = (numTurns === undefined) ? 5 : numTurns;
         numRingsPer2Pi = (numRingsPer2Pi === undefined) ? 16 : numRingsPer2Pi;
