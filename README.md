@@ -1,6 +1,6 @@
 # Reaction-Diffusion Patterns on Snail Shells: Demo
 ## Description
-This is a simple demo which builds on top of the [Reaction-Diffusion tutorial](https://github.com/axyorah/reaction_diffusion_tutorial) and shows what happens if patterns discussed in the tutorial are transferred to some interesting geometrical shapes, like snail shells.
+This is a simple pattern-generation demo done with [three.js](https://threejs.org/). It builds on top of the [Reaction-Diffusion tutorial](https://github.com/axyorah/reaction_diffusion_tutorial) and shows what happens if patterns discussed in the tutorial are transferred to some interesting geometrical shapes, like snail shells.
 
 The choice of geometrical shapes (shells) is not entirely arbitrary and is largely inspired by a great [book](https://www.springer.com/gp/book/9783540921417) on fascinating mathematics behind the curious patterns adorning the tropical shells.
 
