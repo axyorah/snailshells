@@ -34,7 +34,7 @@ Clone this repo to your machine:
 $ git clone https://github.com/axyorah/snailshells.git
 ```
 
-Create docker image for this project. To do this, in the directory where you cloned this repo to run:
+Create docker image for this project. To do this, from the directory where you cloned this repo to run:
 ```
 $ docker build -t snailshells .
 ```
