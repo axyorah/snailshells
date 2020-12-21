@@ -2,7 +2,7 @@
   "name": "snailshells",
   "version": "1.0.0",
   "description": "simple rendering of textures generated with reaction-diffusion equations on snail shells",
-  "main": "snail_shell.js",
+  "main": "main.js",
   "dependencies": {
     "dat.gui": "^0.7.7",
     "http-server": "^0.12.3",
