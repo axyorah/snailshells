@@ -10,7 +10,6 @@ RUN apk add --update npm
 # get dependencies
 COPY ./package.json ./
 RUN npm install
-RUN npm install browserify -g
 RUN npm install http-server -g
 
 # copy local files
