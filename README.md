@@ -1,6 +1,6 @@
 # Reaction-Diffusion Patterns on Snail Shells: Demo
 ## Description
-This is a simple pattern-generation demo done with [three.js](https://threejs.org/). It builds on top of the [Reaction-Diffusion tutorial](https://github.com/axyorah/reaction_diffusion_tutorial) and shows what happens if patterns discussed in the tutorial are transferred to some interesting geometrical shapes, like snail shells.
+This is a simple procedural pattern-generation demo done with [three.js](https://threejs.org/). It builds on top of the [Reaction-Diffusion tutorial](https://github.com/axyorah/reaction_diffusion_tutorial) and shows what happens if patterns discussed in the tutorial are transferred to some interesting geometrical shapes, like snail shells.
 
 The choice of geometrical shapes (shells) is not entirely arbitrary and is largely inspired by a great [book](https://www.springer.com/gp/book/9783540921417) on fascinating mathematics behind the curious patterns adorning the tropical shells.
 
@@ -57,11 +57,7 @@ $ git clone https://github.com/axyorah/snailshells.git
 
 Set up the environment. From the directory where you've cloned this repo to run:
 ```
-$ npm install browserify -g
-$ npm install http-server -g
-$ npm install three
-$ npm install three-orbit-controls
-$ npm install --save dat.gui
+$ npm install 
 ```
 
 Set up local http server at port `8181`:
@@ -83,10 +79,7 @@ If you're running the demo locally or if you've passed `-v $(pwd):/shells` param
   ```
   h.add( effectController, "texname", [..., "mytexture"]).name("texture name");
   ```
-- run:
-```
-$ browserify snail_shell.js > snail_shell_bundle.js
-```
+
 After you refresh the browser your custom textures should become available in the controls. To see how to generate random patterns with beautiful mathematics check [this tutorial](https://github.com/axyorah/reaction_diffusion_tutorial).
 
 ## Acknowledgements
