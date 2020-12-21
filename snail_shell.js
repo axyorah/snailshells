@@ -1,7 +1,7 @@
 // required modules can only be used if bundled version of this file was made with `browserify`
 var OrbitControls = require('three-orbit-controls')(THREE); // allows to control camera position
-var PdeUtils = require('./modules/pdeutils.js'); // custom functions for solving PDEs
-var SnailUtils = require('./modules/snailutils.js'); // custom functions for setting up snail shell geometry/textures
+var PdeUtils = require('./utils/pdeutils.js'); // custom functions for solving PDEs
+var SnailUtils = require('./utils/snailutils.js'); // custom functions for setting up snail shell geometry/textures
 
 // general
 var camera, scene, renderer;
@@ -44,8 +44,7 @@ var timer = 0.0; // time for dynamic texture update
 var timerThreshold = 1/60./30.; // update texture ~30 times per sec
 var x;
 
-// ----------------------------------------------------------------------------------------
-
+// texture helpers
 function initTextureArray(x, p) {
     x = new Array(p.height * p.width * 3);
     for (var i = 0; i < p.height * p.width; i++) {
@@ -101,8 +100,7 @@ function array2texture(x, p, steepness, midpoint) {
     return new THREE.DataTexture( data, p.width, p.height, THREE.RGBFormat );
 }
 
-// ----------------------------------------------------------------------------------------
-
+// thee helpers
 function makeSnailShell(numTurns, numRingsPer2Pi, numPointsPerRing, 
                         rad0, radDecayPer2Pi, 
                         texture, textureLongRepeats, textureTangRepeats, textureTangOffset) {	
@@ -327,11 +325,13 @@ function setupGui() {
 
 }
 
-// ----------------------------------------------------------------------------------------
 // run all
-setupGui();  // adds control menu 
-init();      // sets up camera, controls and renderer, as well as preloads all textures
-fillScene(); // lights and shell are added here
-addAxes(25); // adds xyz axes
-addToDOM();  // adds rendered scene back to html
-animate();   // updates frames when camera changes position or controls are toggled
+function main() {
+    setupGui();  // adds control menu 
+    init();      // sets up camera, controls and renderer, as well as preloads all textures
+    fillScene(); // lights and shell are added here
+    addToDOM();  // adds rendered scene back to html
+    animate();   // updates frames when camera changes position or controls are toggled    
+}
+
+main();
