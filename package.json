@@ -4,11 +4,9 @@
   "description": "simple rendering of textures generated with reaction-diffusion equations on snail shells",
   "main": "snail_shell.js",
   "dependencies": {
-    "browserify": "^17.0.0",
     "dat.gui": "^0.7.7",
     "http-server": "^0.12.3",
-    "three": "^0.123.0",
-    "three-orbit-controls": "^82.1.0"
+    "three": "^0.123.0"
   },
   "devDependencies": {},
   "scripts": {
