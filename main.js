@@ -180,6 +180,7 @@ function main() {
     setupGui();  // adds control menu 
     init();      // sets up camera, controls and renderer, as well as preloads all textures
     fillScene(); // lights and shell are added here
+    addAxes(25); // add xyz to the scene
     addToDOM();  // adds rendered scene back to html
     animate();   // updates frames when camera changes position or controls are toggled    
 }
