@@ -244,3 +244,30 @@ function setTexture(geometry, numTurns, numRingsPer2Pi, numPointsPerRing,
         }
     }
 }
+
+function makeSnailShell(numTurns, numRingsPer2Pi, numPointsPerRing,
+    rad0, radDecayPer2Pi,
+    texture, textureLongRepeats, textureTangRepeats, textureTangOffset) {
+    // assign undefined params
+    numTurns = (numTurns === undefined) ? 5 : numTurns;
+    numRingsPer2Pi = (numRingsPer2Pi === undefined) ? 16 : numRingsPer2Pi;
+    numPointsPerRing = (numPointsPerRing === undefined) ? 16 : numPointsPerRing;
+    rad0 = (rad0 === undefined) ? 1. : rad0;
+    radDecayPer2Pi = (radDecayPer2Pi === undefined) ? 0.3 : radDecayPer2Pi;
+
+    // build snail shell geometry: calculate coordinates of vertices, assign faces and textures
+    var geometry = new THREE.Geometry();
+    setSnailShellVertices(geometry, numTurns, numRingsPer2Pi, numPointsPerRing, rad0, radDecayPer2Pi);
+    setSnailShellFaces(geometry, numTurns, numRingsPer2Pi, numPointsPerRing, rad0, radDecayPer2Pi);
+    setTexture(geometry, numTurns, numRingsPer2Pi, numPointsPerRing, rad0, radDecayPer2Pi,
+        texture, textureLongRepeats, textureTangRepeats, textureTangOffset);
+
+    // calculate normals for proper lighting
+    geometry.computeVertexNormals();
+    geometry.computeFaceNormals();
+
+    // assemble snail shell from geometry and material 
+    var material = new THREE.MeshPhongMaterial({ map: texture, side: THREE.DoubleSide });
+    var snail = new THREE.Mesh(geometry, material);
+    return snail;
+}
