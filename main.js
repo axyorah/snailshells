@@ -39,38 +39,49 @@ function fillScene() {
 
 }
 
-function init() {
-    let { texture, textures, textureName, textureNames } = snailParams.tex;
-    let { x, p } = snailParams.dyn;
-    
-    var canvasWidth = window.innerWidth;
-    var canvasHeight = window.innerHeight;
-    var canvasRatio = canvasWidth / canvasHeight;
-
-    // RENDERER
+function setRenderer(w, h) {
     renderer = new THREE.WebGLRenderer({ antialias: false });
-    renderer.setSize(canvasWidth, canvasHeight);
+    renderer.setSize(w, h);
     renderer.setClearColorHex;
+}
 
-    // CAMERA
-    camera = new THREE.PerspectiveCamera(40, canvasRatio, 1, 10000);
+function setCamera(ratio) {
+    camera = new THREE.PerspectiveCamera(40, ratio, 1, 10000);
     camera.position.set(8, 5, -3);
+}
 
-    // CONTROLS
+function setControls() {
     cameraControls = new THREE.OrbitControls(camera, renderer.domElement);
     cameraControls.target.set(0, 2, 0);
+}
 
-    // TEXTURES
+function loadTextures() {
+    let { texture, textures, textureName, textureNames } = snailParams.tex;
+    
+    // set
     for (let name of textureNames) {
         textures[name] = new THREE.TextureLoader().load(`imgs/${name}.png`);
     }
-    textures.dynamic = new THREE.DataTexture(initTextureArray(x, p), p.width, p.height, THREE.RGBAFormat);
+    //textures.dynamic = new THREE.DataTexture(
+    //    initTextureArray(x, p), p.width, p.height, THREE.RGBAFormat);
     
     texture = textures[textureName]; // init
 
     // update params
     snailParams.tex.texture = texture;
     snailParams.tex.textures = textures;
+}
+
+function init() {
+
+    var canvasWidth = window.innerWidth;
+    var canvasHeight = window.innerHeight;
+    var canvasRatio = canvasWidth / canvasHeight;
+
+    setRenderer(canvasWidth, canvasHeight);
+    setCamera(canvasRatio);
+    setControls();
+    loadTextures();
 }
 
 function addToDOM() {
@@ -97,7 +108,7 @@ function render() {
 
     // update controls only if toggled
     // (dynamic texture needs to be treated separately,
-    //  as it's more computationally intensive)
+    //  as it's more computationally intensivegit vvvvserser)
     if (geo.radDecayPer2Pi !== effectController.raddecay ||
         geo.numTurns !== effectController.turns ||
         tex.textureName !== effectController.texname ||
@@ -109,12 +120,12 @@ function render() {
         geo.radDecayPer2Pi = effectController.raddecay;
         geo.numTurns = effectController.turns;
 
-        // update static texture        
-        tex.textureName = effectController.texname;
+        // update static texture                
         if (effectController.texname !== "dynamic" && 
             tex.textureName !== effectController.texname) {
             dyn.dynamic = false;
-            tex.texture = tex.textures[tex.textureName];
+            tex.textureName = effectController.texname;
+            tex.texture = tex.textures[effectController.texname];
         }
 
         // update num of texture repeats, offset        
@@ -156,6 +167,11 @@ function render() {
         fillScene(); // lights and shell and added here
         addAxes(25);
     }
+
+    // update params (before repopulating the scene)
+    snailParams.geo = geo;
+    snailParams.tex = tex;
+    snailParams.dyn = dyn;
 
     renderer.render(scene, camera);
 }
