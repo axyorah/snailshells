@@ -8,6 +8,7 @@
     "ecstatic": "^4.1.4",
     "http-proxy": "^1.18.1",
     "http-server": "^0.12.3",
+    "lodash": "^4.17.19",
     "three": "^0.123.0"
   },
   "scripts": {
