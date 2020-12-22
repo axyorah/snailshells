@@ -1,6 +1,6 @@
 
 function rotationMatrixAroundY(angle) {
-    var mtx = new THREE.Matrix3();
+    let mtx = new THREE.Matrix3();
     mtx.set(Math.cos(angle), 0., Math.cos(Math.PI / 2 + angle),
         0., 1., 0.,
         Math.sin(angle), 0., Math.sin(Math.PI / 2 + angle));
@@ -60,36 +60,36 @@ function setSnailShellVertices(geometry, snailParams) {
         numTurns, numRingsPer2Pi, numPointsPerRing, rad0, radDecayPer2Pi 
     } = snailParams.geo;
    
-    var numRings = Math.round(numRingsPer2Pi * numTurns) + 1;      // total number of rings that the shell is made of
+    let numRings = Math.round(numRingsPer2Pi * numTurns) + 1;      // total number of rings that the shell is made of
 
     // get 'per ring' radius decay and rise
-    var f2pi = 1. - radDecayPer2Pi;              // current ring rad / ring rad at the previous layer
-    var df = Math.pow(f2pi, 1 / (numRingsPer2Pi)); // current ring rad / previous ring rad
-    var risePer2Pi = 0.0;
-    for (var i = 0; i < numRingsPer2Pi; i++) {
+    let f2pi = 1. - radDecayPer2Pi;              // current ring rad / ring rad at the previous layer
+    let df = Math.pow(f2pi, 1 / (numRingsPer2Pi)); // current ring rad / previous ring rad
+    let risePer2Pi = 0.0;
+    for (let i = 0; i < numRingsPer2Pi; i++) {
         risePer2Pi += Math.pow(f2pi, i / (numRingsPer2Pi - 1));
     }
-    var dh = 2 * Math.sqrt(f2pi) / risePer2Pi;   // rise per ring (as fraction of current rad)
+    let dh = 2 * Math.sqrt(f2pi) / risePer2Pi;   // rise per ring (as fraction of current rad)
 
     // get coordinates of the ring centers and ring vertices	
-    var rad = rad0;  // initiate radius of the 'current' ring
-    var height = 0.; // ring center's height
-    var angle = 0.;  // angle between Ox and ring's center
+    let rad = rad0;  // initiate radius of the 'current' ring
+    let height = 0.; // ring center's height
+    let angle = 0.;  // angle between Ox and ring's center
 
-    for (var iring = 0; iring < numRings; iring++) {
+    for (let iring = 0; iring < numRings; iring++) {
         // update ring center's location and radius
         rad *= df;
         height += dh * rad;
         angle = 2 * Math.PI / numRingsPer2Pi * iring;
 
-        var center = new THREE.Vector3(rad * Math.cos(angle),
+        let center = new THREE.Vector3(rad * Math.cos(angle),
             height,
             rad * Math.sin(angle));
 
         // get ring vertices (anchor points of ring's surface)
-        for (var ipoint = 0; ipoint < numPointsPerRing; ipoint++) {
+        for (let ipoint = 0; ipoint < numPointsPerRing; ipoint++) {
             // construct a circle in xOy-plane, rotate and translate it			
-            var vertex = new THREE.Vector3();
+            let vertex = new THREE.Vector3();
             vertex.set(rad * Math.cos(2 * Math.PI / numPointsPerRing * ipoint),
                 rad * Math.sin(2 * Math.PI / numPointsPerRing * ipoint),
                 0.0);
@@ -142,26 +142,27 @@ function setSnailShellFaces(geometry, snailParams) {
         doesn't output anything, updates geometry with faces
     */
 
-   const { numTurns, numRingsPer2Pi, numPointsPerRing } = snailParams.geo;
+    const { numTurns, numRingsPer2Pi, numPointsPerRing } = snailParams.geo;
    
-    var numRings = Math.round(numTurns * numRingsPer2Pi) + 1;
+    let numRings = Math.round(numTurns * numRingsPer2Pi) + 1;
 
-    for (var iring = 0; iring < numRings; iring++) {
-        for (var ipoint = 0; ipoint < numPointsPerRing; ipoint++) {
-            var ivertex = iring * numPointsPerRing + ipoint;
+    let ivertex, face1, face2;
+    for (let iring = 0; iring < numRings; iring++) {
+        for (let ipoint = 0; ipoint < numPointsPerRing; ipoint++) {
+            ivertex = iring * numPointsPerRing + ipoint;
             // faces are between rings -> skip the last ring
             if (iring != (numRings - 1)) {
                 // vertice indexing is different for the last two faces
                 //( we need to 'close' the ring)
                 if (ipoint < numPointsPerRing - 1) {
-                    var face1 = new THREE.Face3(
+                    face1 = new THREE.Face3(
                         ivertex, ivertex + numPointsPerRing, ivertex + numPointsPerRing + 1);
-                    var face2 = new THREE.Face3(
+                    face2 = new THREE.Face3(
                         ivertex, ivertex + numPointsPerRing + 1, ivertex + 1);
                 } else {
-                    var face1 = new THREE.Face3(
+                    face1 = new THREE.Face3(
                         ivertex, ivertex + numPointsPerRing, ivertex + 1);
-                    var face2 = new THREE.Face3(
+                    face2 = new THREE.Face3(
                         ivertex, ivertex + 1, ivertex + 1 - numPointsPerRing);
                 }
                 geometry.faces.push(face1);
@@ -218,8 +219,8 @@ function setSnailShellTexture(geometry, snailParams) {
     var horFrac = 1. / numRingsPer2Pi;
 
     // set texture UVs
-    for (var iring = 0; iring < numRings; iring++) {
-        for (var ipoint = 0; ipoint < numPointsPerRing; ipoint++) {
+    for (let iring = 0; iring < numRings; iring++) {
+        for (let ipoint = 0; ipoint < numPointsPerRing; ipoint++) {
             geometry.faceVertexUvs[0].push([
                 new THREE.Vector2(iring * horFrac, ipoint * vertFrac),
                 new THREE.Vector2((iring + 1) * horFrac, ipoint * vertFrac),
@@ -239,7 +240,7 @@ function makeSnailShell(snailParams) {
     
     // build snail shell geometry: 
     // calculate coordinates of vertices, assign faces and textures
-    var geometry = new THREE.Geometry();
+    let geometry = new THREE.Geometry();
     setSnailShellVertices(geometry, snailParams);
     setSnailShellFaces(geometry, snailParams);
     setSnailShellTexture(geometry, snailParams);
@@ -249,9 +250,9 @@ function makeSnailShell(snailParams) {
     geometry.computeFaceNormals();
 
     // assemble snail shell from geometry and material 
-    var material = new THREE.MeshPhongMaterial({ 
+    let material = new THREE.MeshPhongMaterial({ 
         map: texture, side: THREE.DoubleSide 
     });
-    var snail = new THREE.Mesh(geometry, material);
+    let snail = new THREE.Mesh(geometry, material);
     return snail;
 }

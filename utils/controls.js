@@ -13,11 +13,11 @@ effectController = {
 };
 
 function setupGui() {
-    var gui = new dat.GUI();
+    let gui = new dat.GUI();
     gui.domElement.style.marginTop = "10px";
     gui.domElement.children[1].style.opacity = "0.9";
     
-    var h;    
+    let h;    
     h = gui.addFolder("Geometry");
     h.add( effectController, "raddecay", 0.0, 1.0, 0.01).name("radius decay");
     h.add( effectController, "turns", 0.1, 10.0, 0.1).name("#turns");

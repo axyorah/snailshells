@@ -1,16 +1,20 @@
 function addAxes(scale) {
     scale = (scale === undefined) ? 100:scale;
-    var axGeometry = new THREE.CylinderGeometry(scale*0.001,scale*0.001,scale*1,32);
-    var xMat = new THREE.MeshPhongMaterial( {color: 0xFF0000} );
-    var xAx = new THREE.Mesh(axGeometry, xMat);
+    let axGeometry = new THREE.CylinderGeometry(scale*0.001,scale*0.001,scale*1,32);
+    
+    let xMat = new THREE.MeshPhongMaterial( {color: 0xFF0000} );
+    let xAx = new THREE.Mesh(axGeometry, xMat);
     xAx.rotation.z = Math.PI / 2;
-    scene.add(xAx);
-    var zMat = new THREE.MeshPhongMaterial( {color: 0x00FF00} );
-    var zAx = new THREE.Mesh(axGeometry, zMat);
+    
+    let zMat = new THREE.MeshPhongMaterial( {color: 0x00FF00} );
+    let zAx = new THREE.Mesh(axGeometry, zMat);
     zAx.rotation.x = Math.PI / 2;
+    
+    let yMat = new THREE.MeshPhongMaterial( {color: 0x0000FF} );
+    let yAx = new THREE.Mesh(axGeometry, yMat);
+    
+    scene.add(xAx);
     scene.add(zAx);
-    var yMat = new THREE.MeshPhongMaterial( {color: 0x0000FF} );
-    var yAx = new THREE.Mesh(axGeometry, yMat);
     scene.add(yAx);
 }
 
@@ -19,12 +23,12 @@ function fillScene() {
     scene.fog = new THREE.Fog(0x808080, 2000, 4000);
 
     // LIGHTS
-    var ambientLight = new THREE.AmbientLight(0x222222);
+    let ambientLight = new THREE.AmbientLight(0x222222);
 
-    var light1 = new THREE.DirectionalLight(0xffffff, 1.0);
+    let light1 = new THREE.DirectionalLight(0xffffff, 1.0);
     light1.position.set(200, 400, 500);
 
-    var light2 = new THREE.DirectionalLight(0xffffff, 1.0);
+    let light2 = new THREE.DirectionalLight(0xffffff, 1.0);
     light2.position.set(-500, 250, -200);
 
     scene.add(ambientLight);
@@ -32,7 +36,7 @@ function fillScene() {
     scene.add(light2);
 
     // SNAIL SHELL
-    var snail = makeSnailShell(snailParams);
+    let snail = makeSnailShell(snailParams);
     snail.castShadow = true;
     snail.receiveShadow = true;
     scene.add(snail);
@@ -74,9 +78,9 @@ function loadTextures() {
 
 function init() {
 
-    var canvasWidth = window.innerWidth;
-    var canvasHeight = window.innerHeight;
-    var canvasRatio = canvasWidth / canvasHeight;
+    let canvasWidth = window.innerWidth;
+    let canvasHeight = window.innerHeight;
+    let canvasRatio = canvasWidth / canvasHeight;
 
     setRenderer(canvasWidth, canvasHeight);
     setCamera(canvasRatio);
@@ -85,8 +89,8 @@ function init() {
 }
 
 function addToDOM() {
-    var container = document.getElementById("container");
-    var canvas = container.getElementsByTagName("canvas");
+    let container = document.getElementById("container");
+    let canvas = container.getElementsByTagName("canvas");
     if (canvas.length > 0) {
         container.removeChild(canvas[0]);
     }
@@ -102,7 +106,7 @@ function render() {
     // deconstruct params
     let { geo, tex, dyn } = snailParams;
 
-    var delta = clock.getDelta();
+    let delta = clock.getDelta();
     cameraControls.update(delta);
     dyn.timer += delta;
 

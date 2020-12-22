@@ -24,8 +24,8 @@ function eulerForwardStep(dxdt, x, deltaT, p) {
     OUTPUT:
         updated x
     */
-    var k1 = dxdt(x, p);
-    for (var i = 0; i < p.height * p.width * p.D.length; i++) {
+    let k1 = dxdt(x, p);
+    for (let i = 0; i < p.height * p.width * p.D.length; i++) {
         x[i] += k1[i] * deltaT;
     }
     return x;
@@ -57,15 +57,15 @@ function rungeKutta2Step(dxdt, x, deltaT, p) {
     OUTPUT:
         updated x
     */
-    var k1 = dxdt(x, p);
+    let k1 = dxdt(x, p);
 
-    var xk1 = new Array(p.width * p.height * p.D.length);
-    for (var i = 0; i < p.height * p.width * p.D.length; i++) {
+    let xk1 = new Array(p.width * p.height * p.D.length);
+    for (let i = 0; i < p.height * p.width * p.D.length; i++) {
         xk1[i] = x[i] + 0.5 * k1[i] * deltaT;
     }
-    var k2 = dxdt(xk1, p);
+    let k2 = dxdt(xk1, p);
 
-    for (var i = 0; i < p.height * p.width * p.D.length; i++) {
+    for (let i = 0; i < p.height * p.width * p.D.length; i++) {
         x[i] += k2[i] * deltaT;
     }
 
@@ -99,30 +99,30 @@ function rungeKutta4Step(dxdt, x, deltaT, p) {
         updated x
     */
 
-    var k1 = dxdt(x, p);
+    letlet = dxdt(x, p);
 
-    var xk1 = new Array(p.width * p.height * p.D.length);
-    for (var i = 0; i < p.width * p.height * p.D.length; i++) {
+    letlet1 = new Array(p.width * p.height * p.D.length);
+    for (letlet= 0; i < p.width * p.height * p.D.length; i++) {
         xk1[i] = x[i] + 0.5 * deltaT * k1[i];
     }
 
-    var k2 = dxdt(xk1, p);
+    letlet = dxdt(xk1, p);
 
-    var xk2 = new Array(p.width * p.height * 3);
-    for (var i = 0; i < p.width * p.height * 3; i++) {
+    letlet2 = new Array(p.width * p.height * 3);
+    for (letlet= 0; i < p.width * p.height * 3; i++) {
         xk2[i] = x[i] + 0.5 * deltaT * k2[i];
     }
 
-    var k3 = dxdt(xk2, p);
+    letlet = dxdt(xk2, p);
 
-    var xk3 = new Array(p.width * p.height * 3);
-    for (var i = 0; i < p.width * p.height * 3; i++) {
+    letlet3 = new Array(p.width * p.height * 3);
+    for (letlet= 0; i < p.width * p.height * 3; i++) {
         xk3[i] = x[i] + deltaT * k3[i];
     }
 
-    var k4 = dxdt(xk3, p);
+    letlet = dxdt(xk3, p);
 
-    for (var i = 0; i < p.width * p.height * 3; i++) {
+    for (letlet= 0; i < p.width * p.height * 3; i++) {
         x[i] += 1. / 6. * (k1[i] + 2. * k2[i] + 2. * k3[i] + k4[i]);
     }
 
@@ -152,10 +152,10 @@ function setDiffusionTerm(diffusion, x, p) {
     OUTPUT:
         doesn't return anything, updates `diffusion`
     */
-    for (var j = 0; j < p.width * p.height; j++) {
-        var stride = j * p.D.length;
+    for (let j = 0; j < p.width * p.height; j++) {
+        let stride = j * p.D.length;
 
-        for (var i = 0; i < p.D.length; i++) {
+        for (let i = 0; i < p.D.length; i++) {
             diffusion[stride + i] = 0.0;
             if (stride >= p.width * p.D.length) {
                 diffusion[stride + i] += p.D[i] / p.delta / p.delta * 0.2 * x[stride + i - p.width * p.D.length]; // from top

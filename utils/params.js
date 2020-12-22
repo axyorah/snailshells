@@ -1,10 +1,10 @@
 // general
-var camera, scene, renderer;
-var cameraControls, effectController;
-var clock = new THREE.Clock();
+let camera, scene, renderer;
+let cameraControls, effectController;
+let clock = new THREE.Clock();
 
 // snail
-var snailParams = {
+let snailParams = {
     geo:{
         numTurns: 5.,            // number of spiral turns of the shell
         numRingsPer2Pi: 16,      // shell 'resolution' in longitudinal direction
