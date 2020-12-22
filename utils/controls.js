@@ -1,7 +1,3 @@
-var gui = new dat.GUI();
-gui.domElement.style.marginTop = "10px";
-gui.domElement.children[1].style.opacity = "0.9";
-
 // init values for gui controller
 effectController = {
     raddecay: 0.3,
@@ -10,13 +6,16 @@ effectController = {
     texlongrepeats: 4.7,
     textangrepeats: 2,
     textangoffset: 0.,
-    texname: "angelfish0",
+    texname: snailParams.tex.textureName,
 
     f: 0.0140,
     k: 0.0450
 };
 
 function setupGui() {
+    var gui = new dat.GUI();
+    gui.domElement.style.marginTop = "10px";
+    gui.domElement.children[1].style.opacity = "0.9";
     
     var h;    
     h = gui.addFolder("Geometry");
@@ -28,18 +27,7 @@ function setupGui() {
     h.add( effectController, "textangrepeats", 2, 12, 2).name("#tang. repeats");
     h.add( effectController, "textangoffset", 0., 2., 0.01).name("#tang. offset");
     h.add( effectController, "texname", 
-                            ["angelfish0", 
-                             "angelfish1", 
-                             "gierermeinhardt0",
-                             "gierermeinhardt1", 
-                             "grayscottcorals0", 
-                             "grayscottcorals1", 
-                             "grayscottspirals0",
-                             "grayscottspirals1",
-                             "predprey0",
-                             "predprey1",
-                             "dynamic"
-                            ]).name("texture name");
+           snailParams.tex.textureNames.concat("dynamic") ).name("texture name");
 
     h = gui.addFolder("Dynamic Texture Only");
     h.add( effectController, "f", 0.0100, 0.0650, 0.0001).name("f ('prey' growth)");

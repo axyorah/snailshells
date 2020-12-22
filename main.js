@@ -32,9 +32,7 @@ function fillScene() {
     scene.add(light2);
 
     // SNAIL SHELL
-    var snail = makeSnailShell(numTurns, numRingsPer2Pi, numPointsPerRing,
-        rad0, radDecayPer2Pi,
-        texture, textureLongRepeats, textureTangRepeats, textureTangOffset);
+    var snail = makeSnailShell(snailParams);
     snail.castShadow = true;
     snail.receiveShadow = true;
     scene.add(snail);
@@ -42,6 +40,9 @@ function fillScene() {
 }
 
 function init() {
+    let { texture, textures, textureName, textureNames } = snailParams.tex;
+    let { x, p } = snailParams.dyn;
+    
     var canvasWidth = window.innerWidth;
     var canvasHeight = window.innerHeight;
     var canvasRatio = canvasWidth / canvasHeight;
@@ -60,26 +61,21 @@ function init() {
     cameraControls.target.set(0, 2, 0);
 
     // TEXTURES
-    textures.angelfish0 = new THREE.TextureLoader().load("imgs/angelfish0.png");
-    textures.angelfish1 = new THREE.TextureLoader().load("imgs/angelfish1.png");
-    textures.gierermeinhardt0 = new THREE.TextureLoader().load("imgs/gierermeinhardt0.png");
-    textures.gierermeinhardt1 = new THREE.TextureLoader().load("imgs/gierermeinhardt1.png");
-    textures.grayscottcorals0 = new THREE.TextureLoader().load("imgs/grayscott-corals0.png");
-    textures.grayscottcorals1 = new THREE.TextureLoader().load("imgs/grayscott-corals1.png");
-    textures.grayscottspirals0 = new THREE.TextureLoader().load("imgs/grayscott-spirals0.png");
-    textures.grayscottspirals1 = new THREE.TextureLoader().load("imgs/grayscott-spirals1.png");
-    textures.predprey0 = new THREE.TextureLoader().load("imgs/predprey0.png");
-    textures.predprey1 = new THREE.TextureLoader().load("imgs/predprey1.png");
+    for (let name of textureNames) {
+        textures[name] = new THREE.TextureLoader().load(`imgs/${name}.png`);
+    }
     textures.dynamic = new THREE.DataTexture(initTextureArray(x, p), p.width, p.height, THREE.RGBAFormat);
-
-    textureName = "angelfish0";
+    
     texture = textures[textureName]; // init
 
+    // update params
+    snailParams.tex.texture = texture;
+    snailParams.tex.textures = textures;
 }
 
 function addToDOM() {
-    var container = document.getElementById('container');
-    var canvas = container.getElementsByTagName('canvas');
+    var container = document.getElementById("container");
+    var canvas = container.getElementsByTagName("canvas");
     if (canvas.length > 0) {
         container.removeChild(canvas[0]);
     }
@@ -92,55 +88,71 @@ function animate() {
 }
 
 function render() {
+    // deconstruct params
+    let { geo, tex, dyn } = snailParams;
+
     var delta = clock.getDelta();
     cameraControls.update(delta);
-    timer += clock.getDelta();
+    dyn.timer += delta;
 
     // update controls only if toggled
-    if (radDecayPer2Pi !== effectController.raddecay ||
-        numTurns !== effectController.turns ||
-        textureName !== effectController.texname ||
-        textureTangRepeats !== effectController.textangrepeats ||
-        textureTangOffset !== effectController.textangoffset ||
-        textureLongRepeats !== effectController.texlongrepeats) {
+    // (dynamic texture needs to be treated separately,
+    //  as it's more computationally intensive)
+    if (geo.radDecayPer2Pi !== effectController.raddecay ||
+        geo.numTurns !== effectController.turns ||
+        tex.textureName !== effectController.texname ||
+        tex.textureTangRepeats !== effectController.textangrepeats ||
+        tex.textureTangOffset !== effectController.textangoffset ||
+        tex.textureLongRepeats !== effectController.texlongrepeats) {
+
         // update geometry
-        radDecayPer2Pi = effectController.raddecay;
-        numTurns = effectController.turns;
+        geo.radDecayPer2Pi = effectController.raddecay;
+        geo.numTurns = effectController.turns;
 
         // update static texture        
-        textureName = effectController.texname;
-        if (effectController.texname !== "dynamic") {
-            dynamic = false;
-            texture = textures[textureName];
+        tex.textureName = effectController.texname;
+        if (effectController.texname !== "dynamic" && 
+            tex.textureName !== effectController.texname) {
+            dyn.dynamic = false;
+            tex.texture = tex.textures[tex.textureName];
         }
 
         // update num of texture repeats, offset        
-        textureTangOffset = effectController.textangoffset;
-        textureTangRepeats = effectController.textangrepeats;
-        textureLongRepeats = effectController.texlongrepeats;
+        tex.textureTangOffset = effectController.textangoffset;
+        tex.textureTangRepeats = effectController.textangrepeats;
+        tex.textureLongRepeats = effectController.texlongrepeats;
 
-        // reset the scene
+        // update params (before repopulating the scene)
+        snailParams.geo = geo;
+        snailParams.tex = tex;
+        snailParams.dyn = dyn;
+
+        // reset the scene (only if something has changed)
         fillScene(); // lights and shell and added here
         addAxes(25);
     }
 
-    if (effectController.texname === "dynamic" && dynamic === false) {
-        dynamic = true;
-        x = initTextureArray(x, p);
+    if (effectController.texname === "dynamic" && dyn.dynamic === false) {
+        dyn.dynamic = true;
+        dyn.x = initTextureArray(dyn.x, dyn.p);
     }
 
-    if (effectController.texname === "dynamic" && timer > timerThreshold) {
-        timer -= timerThreshold; // reset timer
+    if (effectController.texname === "dynamic" && dyn.timer > dyn.timerThreshold) {
+        dyn.timer -= dyn.timerThreshold; // reset timer
 
         // update Gray-Scott params
-        p.f = effectController.f;
-        p.k = effectController.k;
+        dyn.p.f = effectController.f;
+        dyn.p.k = effectController.k;
 
         // update array/texture
-        x = rungeKutta4Step(dxdtGrayScott, x, deltaT, p);
-        texture = array2texture(x, p, 10., 0.6);
+        dyn.x = rungeKutta4Step(dxdtGrayScott, dyn.x, dyn.deltaT, dyn.p);
+        tex.texture = array2texture(dyn.x, dyn.p, 10., 0.6);
 
-        // reset the scene
+        // update params (before repopulating the scene)
+        snailParams.tex = tex;
+        snailParams.dyn = dyn;
+
+        // reset the scene (only if something has changed)
         fillScene(); // lights and shell and added here
         addAxes(25);
     }

@@ -7,9 +7,7 @@ function rotationMatrixAroundY(angle) {
     return mtx;
 }
 
-function setSnailShellVertices(
-    geometry, numTurns, numRingsPer2Pi,
-    numPointsPerRing, rad0, radDecayPer2Pi) {
+function setSnailShellVertices(geometry, snailParams) {
     /*
     Calculates vertex coordinates of the snail shell in xyz 
     and uses calculated vertices to update geometry object.
@@ -58,13 +56,10 @@ function setSnailShellVertices(
     OUTPUT:
         doesn't output anything, updates geometry with vertices
     */
-    // assign undefined params
-    numTurns = (numTurns === undefined) ? 5 : numTurns;
-    numRingsPer2Pi = (numRingsPer2Pi === undefined) ? 16 : numRingsPer2Pi;
-    numPointsPerRing = (numPointsPerRing === undefined) ? 16 : numPointsPerRing;
-    rad0 = (rad0 === undefined) ? 1. : rad0;
-    radDecayPer2Pi = (radDecayPer2Pi === undefined) ? 0.3 : radDecayPer2Pi;
-
+    const { 
+        numTurns, numRingsPer2Pi, numPointsPerRing, rad0, radDecayPer2Pi 
+    } = snailParams.geo;
+   
     var numRings = Math.round(numRingsPer2Pi * numTurns) + 1;      // total number of rings that the shell is made of
 
     // get 'per ring' radius decay and rise
@@ -106,9 +101,7 @@ function setSnailShellVertices(
     }
 }
 
-function setSnailShellFaces(
-    geometry, numTurns, numRingsPer2Pi,
-    numPointsPerRing, rad0, radDecayPer2Pi) {
+function setSnailShellFaces(geometry, snailParams) {
     /*
     Assigns face triangles using info on vertices;
     updates geometry object
@@ -149,10 +142,8 @@ function setSnailShellFaces(
         doesn't output anything, updates geometry with faces
     */
 
-    // assign undefined params
-    numTurns = (numTurns === undefined) ? 5 : numTurns;
-    numPointsPerRing = (numPointsPerRing === undefined) ? 16 : numPointsPerRing;
-
+   const { numTurns, numRingsPer2Pi, numPointsPerRing } = snailParams.geo;
+   
     var numRings = Math.round(numTurns * numRingsPer2Pi) + 1;
 
     for (var iring = 0; iring < numRings; iring++) {
@@ -163,11 +154,15 @@ function setSnailShellFaces(
                 // vertice indexing is different for the last two faces
                 //( we need to 'close' the ring)
                 if (ipoint < numPointsPerRing - 1) {
-                    var face1 = new THREE.Face3(ivertex, ivertex + numPointsPerRing, ivertex + numPointsPerRing + 1);
-                    var face2 = new THREE.Face3(ivertex, ivertex + numPointsPerRing + 1, ivertex + 1);
+                    var face1 = new THREE.Face3(
+                        ivertex, ivertex + numPointsPerRing, ivertex + numPointsPerRing + 1);
+                    var face2 = new THREE.Face3(
+                        ivertex, ivertex + numPointsPerRing + 1, ivertex + 1);
                 } else {
-                    var face1 = new THREE.Face3(ivertex, ivertex + numPointsPerRing, ivertex + 1);
-                    var face2 = new THREE.Face3(ivertex, ivertex + 1, ivertex + 1 - numPointsPerRing);
+                    var face1 = new THREE.Face3(
+                        ivertex, ivertex + numPointsPerRing, ivertex + 1);
+                    var face2 = new THREE.Face3(
+                        ivertex, ivertex + 1, ivertex + 1 - numPointsPerRing);
                 }
                 geometry.faces.push(face1);
                 geometry.faces.push(face2);
@@ -176,9 +171,7 @@ function setSnailShellFaces(
     }
 }
 
-function setTexture(geometry, numTurns, numRingsPer2Pi, numPointsPerRing,
-    rad0, radDecayPer2Pi,
-    texture, textureLongRepeats, textureTangRepeats, textureTangOffset) {
+function setSnailShellTexture(geometry, snailParams) {
     /*
     Assignes mirror repeated texture to snail shell
     INPUTS:
@@ -209,13 +202,9 @@ function setTexture(geometry, numTurns, numRingsPer2Pi, numPointsPerRing,
     OUTPUT:
         doesn't output anything, updates geometry with texture
     */
-    // assign undefined params
-    numTurns = (numTurns === undefined) ? 5 : numTurns;
-    numRingsPer2Pi = (numRingsPer2Pi === undefined) ? 16 : numRingsPer2Pi;
-    numPointsPerRing = (numPointsPerRing === undefined) ? 16 : numPointsPerRing;
-    textureTangRepeats = (textureTangRepeats === undefined) ? 2 : textureTangRepeats;
-    textureLongRepeats = (textureLongRepeats === undefined) ? 4.7 : textureLongRepeats;
-
+    const { numTurns, numRingsPer2Pi, numPointsPerRing } = snailParams.geo;
+    const { texture, textureLongRepeats, textureTangRepeats, textureTangOffset } = snailParams.tex;
+    
     var numRings = Math.round(numTurns * numRingsPer2Pi) + 1;
 
     // load texture	
@@ -245,29 +234,24 @@ function setTexture(geometry, numTurns, numRingsPer2Pi, numPointsPerRing,
     }
 }
 
-function makeSnailShell(numTurns, numRingsPer2Pi, numPointsPerRing,
-    rad0, radDecayPer2Pi,
-    texture, textureLongRepeats, textureTangRepeats, textureTangOffset) {
-    // assign undefined params
-    numTurns = (numTurns === undefined) ? 5 : numTurns;
-    numRingsPer2Pi = (numRingsPer2Pi === undefined) ? 16 : numRingsPer2Pi;
-    numPointsPerRing = (numPointsPerRing === undefined) ? 16 : numPointsPerRing;
-    rad0 = (rad0 === undefined) ? 1. : rad0;
-    radDecayPer2Pi = (radDecayPer2Pi === undefined) ? 0.3 : radDecayPer2Pi;
-
-    // build snail shell geometry: calculate coordinates of vertices, assign faces and textures
+function makeSnailShell(snailParams) {
+    const { texture } = snailParams.tex;
+    
+    // build snail shell geometry: 
+    // calculate coordinates of vertices, assign faces and textures
     var geometry = new THREE.Geometry();
-    setSnailShellVertices(geometry, numTurns, numRingsPer2Pi, numPointsPerRing, rad0, radDecayPer2Pi);
-    setSnailShellFaces(geometry, numTurns, numRingsPer2Pi, numPointsPerRing, rad0, radDecayPer2Pi);
-    setTexture(geometry, numTurns, numRingsPer2Pi, numPointsPerRing, rad0, radDecayPer2Pi,
-        texture, textureLongRepeats, textureTangRepeats, textureTangOffset);
+    setSnailShellVertices(geometry, snailParams);
+    setSnailShellFaces(geometry, snailParams);
+    setSnailShellTexture(geometry, snailParams);
 
     // calculate normals for proper lighting
     geometry.computeVertexNormals();
     geometry.computeFaceNormals();
 
     // assemble snail shell from geometry and material 
-    var material = new THREE.MeshPhongMaterial({ map: texture, side: THREE.DoubleSide });
+    var material = new THREE.MeshPhongMaterial({ 
+        map: texture, side: THREE.DoubleSide 
+    });
     var snail = new THREE.Mesh(geometry, material);
     return snail;
 }

@@ -1,5 +1,7 @@
 // texture helpers
 function initTextureArray(x, p) {
+    const { dumm, pred, prey } = p;
+
     x = new Array(p.height * p.width * 3);
     for (var i = 0; i < p.height * p.width; i++) {
         var stride = i * 3;
@@ -18,6 +20,8 @@ function initTextureArray(x, p) {
 }
 
 function setGrayScottReactionTerm(reaction, x, p) {
+    const { dumm, pred, prey } = p;
+    
     for (var i = 0; i < p.height * p.width; i++) {
         var stride = i * 3;
 
