@@ -3,3 +3,4 @@ node_modules
 .git*
 http_server.py
 workspacecofig.code-workspace
+styles
