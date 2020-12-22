@@ -23,12 +23,12 @@ function fillScene() {
     scene.fog = new THREE.Fog(0x808080, 2000, 4000);
 
     // LIGHTS
-    let ambientLight = new THREE.AmbientLight(0x222222);
+    const ambientLight = new THREE.AmbientLight(0x222222);
 
-    let light1 = new THREE.DirectionalLight(0xffffff, 1.0);
+    const light1 = new THREE.DirectionalLight(0xffffff, 1.0);
     light1.position.set(200, 400, 500);
 
-    let light2 = new THREE.DirectionalLight(0xffffff, 1.0);
+    const light2 = new THREE.DirectionalLight(0xffffff, 1.0);
     light2.position.set(-500, 250, -200);
 
     scene.add(ambientLight);
@@ -61,15 +61,19 @@ function setControls() {
 
 function loadTextures() {
     let { texture, textures, textureName, textureNames } = snailParams.tex;
+    let { p } = snailParams.dyn;
     
-    // set
+    // set static textures
     for (let name of textureNames) {
         textures[name] = new THREE.TextureLoader().load(`imgs/${name}.png`);
     }
-    //textures.dynamic = new THREE.DataTexture(
-    //    initTextureArray(x, p), p.width, p.height, THREE.RGBAFormat);
+    // initiate dynamic texture
+    textures.dynamic = new THREE.DataTexture(
+        new Uint8Array( p.width * p.height * 3 ), 
+        p.width, p.height, THREE.RGBFormat);
     
-    texture = textures[textureName]; // init
+    // set current texture
+    texture = textures[textureName];
 
     // update params
     snailParams.tex.texture = texture;
@@ -160,9 +164,9 @@ function render() {
         dyn.p.k = effectController.k;
 
         // update array/texture
-        dyn.x = rungeKutta4Step(dxdtGrayScott, dyn.x, dyn.deltaT, dyn.p);
+        rungeKutta4Step(dxdtGrayScott, dyn.x, dyn.deltaT, dyn.p);
         tex.texture = array2texture(dyn.x, dyn.p, 10., 0.6);
-
+        
         // update params (before repopulating the scene)
         snailParams.tex = tex;
         snailParams.dyn = dyn;

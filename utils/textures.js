@@ -50,10 +50,18 @@ function dxdtGrayScott(x, p) {
 
 function array2texture(x, p, steepness, midpoint) {
 
-    let data = new Uint8Array( p.height * p.width * 3 );
-    for (let i = 0; i < p.width * p.height * 3; i++) {
+    let data = new Uint8Array( x.length );
+    
+    for (let i = 0; i < x.length; i++) {
         data[i] = Math.floor( 255. / (1 + Math.exp(-steepness * (x[i] - midpoint))) );
     }
-
     return new THREE.DataTexture( data, p.width, p.height, THREE.RGBFormat );
+}
+
+function updateDynTexture(texture, x, steepness, midpoint) {
+    
+    for (let i = 0; i < x.length; i++) {
+        texture.image.data[i] = Math.floor( 255. / (1 + Math.exp(-steepness * (x[i] - midpoint))) );
+    }
+    return texture;
 }

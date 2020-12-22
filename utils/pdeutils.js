@@ -99,32 +99,41 @@ function rungeKutta4Step(dxdt, x, deltaT, p) {
         updated x
     */
 
-    letlet = dxdt(x, p);
+    let k1 = dxdt(x, p);
 
-    letlet1 = new Array(p.width * p.height * p.D.length);
-    for (letlet= 0; i < p.width * p.height * p.D.length; i++) {
+    let xk1 = new Array(p.width * p.height * p.D.length);
+    for (let i = 0; i < p.width * p.height * p.D.length; i++) {
         xk1[i] = x[i] + 0.5 * deltaT * k1[i];
     }
 
-    letlet = dxdt(xk1, p);
+    let k2 = dxdt(xk1, p);
 
-    letlet2 = new Array(p.width * p.height * 3);
-    for (letlet= 0; i < p.width * p.height * 3; i++) {
+    let xk2 = new Array(p.width * p.height * 3);
+    for (let i = 0; i < p.width * p.height * 3; i++) {
         xk2[i] = x[i] + 0.5 * deltaT * k2[i];
     }
 
-    letlet = dxdt(xk2, p);
+    let k3 = dxdt(xk2, p);
 
-    letlet3 = new Array(p.width * p.height * 3);
-    for (letlet= 0; i < p.width * p.height * 3; i++) {
+    let xk3 = new Array(p.width * p.height * 3);
+    for (let i = 0; i < p.width * p.height * 3; i++) {
         xk3[i] = x[i] + deltaT * k3[i];
     }
 
-    letlet = dxdt(xk3, p);
+    let k4 = dxdt(xk3, p);
 
-    for (letlet= 0; i < p.width * p.height * 3; i++) {
+    for (let i = 0; i < p.width * p.height * 3; i++) {
         x[i] += 1. / 6. * (k1[i] + 2. * k2[i] + 2. * k3[i] + k4[i]);
     }
+
+    // clear
+    k1.length = 0;
+    k2.length = 0;
+    k3.length = 0;
+    k4.length = 0;
+    xk1.length = 0;
+    xk2.length = 0;
+    xk3.length = 0;
 
     return x;
 }
