@@ -15,24 +15,24 @@
         <div id="gui" class="gui-box">
             <div id="geometry" class="gui-box">
                 <p><b>Geometry</b></p>
-                <label for="raddecay">radius decay</label>
+                <label for="raddecay" id="raddecay-lbl">Radius Decay:</label>
                 <input type="range" min="0" max="1" step="0.01" value="0.3" id="raddecay" name="raddecay">
-                <label for="turns">#turns</label>
+                <label for="turns" id="turns-lbl">#Turns:</label>
                 <input type="range" min="0.1" max="10" step="0.1" value="5" id="turns" name="turns">
             </div>
             <div id="textures" class="gui-box">
                 <p><b>Textures</b></p>
-                <label for="texlongrepeats">#long. repeats</label>
+                <label for="texlongrepeats" id="texlongrepeats-lbl">#Long. Repeats:</label>
                 <input type="range" min="1" max="30" step="0.01" value="1" id="texlongrepeats" name="texlongrepeats">
-                <label for="textangrepeats">#tang. repeats</label>
+                <label for="textangrepeats" id="textangrepeats-lbl">#Tang. Repeats:</label>
                 <input type="range" min="2" max="12" step="2" value="2" id="textangrepeats" name="textangrepeats">
-                <label for="textangoffset">tang. offset</label>
+                <label for="textangoffset" id="textangoffset-lbl">Tang. Offset:</label>
                 <input type="range" min="0" max="2" step="0.01" value="0" id="textangoffset" name="textangoffset">
 
                 <div id="statictex" class="gui-box">
                     <p>Static Textures</p>
                     <select class="custom-select" id="texname">
-                        <option selected>Choose a Texture</option>
+                        <option disabled selected>Choose a Texture</option>
                         <option value="angelfish-1">Angelfish (1)</option>
                         <option value="angelfish-2">Angerfish (2)</option>
                         <option value="gierer-meinhardt-1">Gierer-Meinhardt (1)</option>
@@ -48,10 +48,10 @@
 
                 <div id="dyntex" class="gui-box">
                     <p>Dynamic Texture</p>
-                    <label for="f-dyn">f ('prey growth')</label>
+                    <label for="f-dyn" id="f-dyn-lbl">f ('prey' growth):</label>
                     <input type="range" min="0.01" max="0.065" step="0.0001" value="0.014"
                         id="f-dyn" name="f-dyn">
-                    <label for="k-dyn">k ('pred' decay)</label>
+                    <label for="k-dyn" id="k-dyn-lbl">k ('pred' decay):</label>
                     <input type="range" min="0.01" max="0.065" step="0.0001" value="0.045"
                         id="k-dyn" name="k-dyn">
                 </div>

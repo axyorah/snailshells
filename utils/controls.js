@@ -1,11 +1,18 @@
 const radDecayRng = document.querySelector("#raddecay");
+const radDecayLbl = document.querySelector("#raddecay-lbl");
 const turnsRng = document.querySelector("#turns");
+const turnsLbl = document.querySelector("#turns-lbl");
 const texLongRepeatsRng = document.querySelector("#texlongrepeats");
+const texLongRepeatsLbl = document.querySelector("#texlongrepeats-lbl");
 const texTangRepeatsRng = document.querySelector("#textangrepeats");
+const texTangRepeatsLbl = document.querySelector("#textangrepeats-lbl");
 const texTangOffsetRng = document.querySelector("#textangoffset");
+const texTangOffsetLbl = document.querySelector("#textangoffset-lbl");
 const texNameSelect = document.querySelector("#texname");
 const fDynRng = document.querySelector("#f-dyn");
+const fDynLbl = document.querySelector("#f-dyn-lbl");
 const kDynRng = document.querySelector("#k-dyn");
+const kDynLbl = document.querySelector("#k-dyn-lbl");
 
 function updateDynamicTexture() {
     let { tex, dyn } = snailParams;
@@ -31,6 +38,8 @@ radDecayRng.addEventListener("input", () => {
     const val = parseFloat(radDecayRng.value);
     snailParams.geo.radDecayPer2Pi = val;
 
+    radDecayLbl.innerText = `${radDecayLbl.innerText.split(":")[0]}: ${val}`;
+
     fillScene();
     addAxes();
 })
@@ -38,6 +47,8 @@ radDecayRng.addEventListener("input", () => {
 turnsRng.addEventListener("input", () => {
     const val = parseFloat(turnsRng.value);
     snailParams.geo.numTurns = val;
+
+    turnsLbl.innerText = `${turnsLbl.innerText.split(":")[0]}: ${val}`;
 
     fillScene();
     addAxes();
@@ -47,6 +58,8 @@ texLongRepeatsRng.addEventListener("input", () => {
     const val = parseFloat(texLongRepeatsRng.value);
     snailParams.tex.textureLongRepeats = val;
 
+    texLongRepeatsLbl.innerText = `${texLongRepeatsLbl.innerText.split(":")[0]}: ${val}`;
+
     fillScene();
     addAxes();
 })
@@ -55,6 +68,8 @@ texTangRepeatsRng.addEventListener("input", () => {
     const val = parseInt(texTangRepeatsRng.value);
     snailParams.tex.textureTangRepeats = val;
 
+    texTangRepeatsLbl.innerText = `${texTangRepeatsLbl.innerText.split(":")[0]}: ${val}`;
+
     fillScene();
     addAxes();
 })
@@ -62,6 +77,8 @@ texTangRepeatsRng.addEventListener("input", () => {
 texTangOffsetRng.addEventListener("input", () => {
     const val = parseFloat(texTangOffsetRng.value);
     snailParams.tex.textureTangOffset = val;
+
+    texTangOffsetLbl.innerText = `${texTangOffsetLbl.innerText.split(":")[0]}: ${val}`;
 
     fillScene();
     addAxes();
@@ -83,6 +100,8 @@ fDynRng.addEventListener("input", () => {
     let { dyn } = snailParams;
     dyn.p.f = val;
 
+    fDynLbl.innerText = `${fDynLbl.innerText.split(":")[0]}: ${val}`;
+
     if (!dyn.dynamic) {
         dyn.dynamic = true;
         dyn.x = initTextureArray(dyn.x, dyn.p);
@@ -97,8 +116,10 @@ fDynRng.addEventListener("input", () => {
 kDynRng.addEventListener("input", () => {
     const val = parseFloat(kDynRng.value);
 
-    let { tex, dyn } = snailParams;
+    let { dyn } = snailParams;
     dyn.p.k = val;
+
+    kDynLbl.innerText = `${kDynLbl.innerText.split(":")[0]}: ${val}`;
 
     if (!dyn.dynamic) {
         dyn.dynamic = true;
