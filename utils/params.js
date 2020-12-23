@@ -1,7 +1,14 @@
 // general
 let camera, scene, renderer;
 let cameraControls, effectController;
-let clock = new THREE.Clock();
+const clock = new THREE.Clock();
+const container = document.querySelector("#container");
+let snailGui = document.querySelector("#gui");
+
+let containerParams = {
+    relWidth: 1.,
+    relHeight: 1.,
+}
 
 // snail
 let snailParams = {

@@ -46,6 +46,7 @@ function fillScene() {
 function setRenderer(w, h) {
     renderer = new THREE.WebGLRenderer({ antialias: false });
     renderer.setSize(w, h);
+    renderer.domElement.setAttribute("id", "renderer");
     renderer.setClearColorHex;
 }
 
@@ -82,8 +83,8 @@ function loadTextures() {
 
 function init() {
 
-    const canvasWidth = window.innerWidth;
-    const canvasHeight = window.innerHeight;
+    const canvasWidth = Math.round(containerParams.relWidth * window.innerWidth);
+    const canvasHeight = Math.round(containerParams.relHeight * window.innerHeight);
     const canvasRatio = canvasWidth / canvasHeight;
 
     setRenderer(canvasWidth, canvasHeight);
@@ -93,12 +94,13 @@ function init() {
 }
 
 function addToDOM() {
-    const container = document.getElementById("container");
+    //const container = document.getElementById("container");
     const canvas = container.getElementsByTagName("canvas");
     if (canvas.length > 0) {
         container.removeChild(canvas[0]);
     }
     container.appendChild(renderer.domElement);
+    container.appendChild(snailGui); // gui should be "on top" of canvas
 }
 
 function animate() {
@@ -195,8 +197,8 @@ function render() {
 }
 
 window.addEventListener('resize', () => {
-    const canvasWidth = window.innerWidth;
-    const canvasHeight = window.innerHeight;
+    const canvasWidth = Math.round(containerParams.relWidth * window.innerWidth);
+    const canvasHeight = Math.round(containerParams.relHeight * window.innerHeight);
     const canvasRatio = canvasWidth / canvasHeight;
 
     camera.aspect = canvasRatio; 

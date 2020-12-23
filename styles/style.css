@@ -1,0 +1,28 @@
+.container {
+    display: flex;
+    position: relative;
+    margin: 0px;
+    padding: 0px;
+}
+
+#renderer {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+#gui {
+    position: absolute;
+    margin-top: 50px;
+    margin-left: 50px;
+    color: white;
+}
+
+.gui-box {
+    margin: 3px;
+    padding: 6px;
+    border: 1px solid white;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+}
