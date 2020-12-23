@@ -16,9 +16,9 @@
             <div id="geometry" class="gui-box">
                 <p><b>Geometry</b></p>
                 <label for="raddecay">radius decay</label>
-                <input type="range" min="0" max="1" step="0.1" value="0.1" id="raddecay" name="raddecay">
+                <input type="range" min="0" max="1" step="0.01" value="0.3" id="raddecay" name="raddecay">
                 <label for="turns">#turns</label>
-                <input type="range" min="0.1" max="10" step="0.1" value="6" id="turns" name="turns">
+                <input type="range" min="0.1" max="10" step="0.1" value="5" id="turns" name="turns">
             </div>
             <div id="textures" class="gui-box">
                 <p><b>Textures</b></p>
@@ -37,17 +37,17 @@
                         <option value="angelfish-2">Angerfish (2)</option>
                         <option value="gierer-meinhardt-1">Gierer-Meinhardt (1)</option>
                         <option value="gierer-meinhardt-2">Gierer-Meinhardt (2)</option>
-                        <option value="grey-scott-corals-1">Gray-Scott: Corals (1)</option>
-                        <option value="grey-scott-corals-2">Gray-Scott: Corals (2)</option>
-                        <option value="grey-scott-spirals-1">Gray-Scott: Spirals (1)</option>
-                        <option value="grey-scott-spirals-2">Gray-Scott: Spirals (2)</option>
+                        <option value="gray-scott-corals-1">Gray-Scott: Corals (1)</option>
+                        <option value="gray-scott-corals-2">Gray-Scott: Corals (2)</option>
+                        <option value="gray-scott-spirals-1">Gray-Scott: Spirals (1)</option>
+                        <option value="gray-scott-spirals-2">Gray-Scott: Spirals (2)</option>
                         <option value="pred-prey-1">Predator - Prey (1)</option>
-                        <option value="pred-prey">Predator - Prey (2)</option>
+                        <option value="pred-prey-2">Predator - Prey (2)</option>
                     </select>
                 </div>
 
                 <div id="dyntex" class="gui-box">
-                    <p>Dynamic Textures</p>
+                    <p>Dynamic Texture</p>
                     <label for="f-dyn">f ('prey growth')</label>
                     <input type="range" min="0.01" max="0.065" step="0.0001" value="0.014"
                         id="f-dyn" name="f-dyn">
@@ -60,7 +60,6 @@
     </div>
 
     <script src="./node_modules/three/build/three.js"></script>
-    <script src="./node_modules/dat.gui/build/dat.gui.js"></script>
     <script src="./node_modules/three/examples/js/controls/OrbitControls.js"></script>
     <script src="./utils/pdeutils.js"></script>
     <script src="./utils/snailutils.js"></script>

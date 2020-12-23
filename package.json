@@ -4,7 +4,6 @@
   "description": "simple rendering of textures generated with reaction-diffusion equations on snail shells",
   "main": "main.js",
   "dependencies": {
-    "dat.gui": "^0.7.7",
     "ecstatic": "^4.1.4",
     "http-proxy": "^1.18.1",
     "http-server": "^0.12.3",

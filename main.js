@@ -94,93 +94,11 @@ function init() {
 }
 
 function addToDOM() {
-    //const container = document.getElementById("container");
     const canvas = container.getElementsByTagName("canvas");
     if (canvas.length > 0) {
         container.removeChild(canvas[0]);
     }
-    container.appendChild(renderer.domElement);
-    container.appendChild(snailGui); // gui should be "on top" of canvas
-}
-
-function animate() {
-    window.requestAnimationFrame(animate);
-    render();
-}
-
-function updateGeometry() {
-    let { geo } = snailParams;
-    if (geo.radDecayPer2Pi !== effectController.raddecay ||
-        geo.numTurns !== effectController.turns) {
-
-        geo.radDecayPer2Pi = effectController.raddecay;
-        geo.numTurns = effectController.turns;
-
-        snailParams.geo = geo;
-        fillScene(); // lights and shell and added here
-        addAxes(25);
-    }
-}
-
-function updateStaticTextures() {
-    let { tex, dyn } = snailParams;
-    if (tex.textureName !== effectController.texname ||
-        tex.textureTangRepeats !== effectController.textangrepeats ||
-        tex.textureTangOffset !== effectController.textangoffset ||
-        tex.textureLongRepeats !== effectController.texlongrepeats) {
-        
-        if (effectController.texname !== "dynamic" && 
-            tex.textureName !== effectController.texname) {
-            dyn.dynamic = false;
-            tex.textureName = effectController.texname;
-            tex.texture = tex.textures[effectController.texname];
-        }
-
-        // update num of texture repeats, offset        
-        tex.textureTangOffset = effectController.textangoffset;
-        tex.textureTangRepeats = effectController.textangrepeats;
-        tex.textureLongRepeats = effectController.texlongrepeats;
-
-        // update params (before repopulating the scene)
-        snailParams.tex = tex;
-        snailParams.dyn = dyn;
-
-        // reset the scene (only if something has changed)
-        fillScene(); // lights and shell and added here
-        addAxes(25);
-    }
-}
-
-function updateDynamicTextures() {
-    let { tex, dyn } = snailParams;
-    
-    if (tex.textureName !== effectController.texname) {
-        
-        if (effectController.texname === "dynamic" && dyn.dynamic === false) {
-            dyn.dynamic = true;
-            dyn.x = initTextureArray(dyn.x, dyn.p);
-        }
-        
-        if (effectController.texname === "dynamic" && dyn.timer > dyn.timerThreshold) {
-            dyn.timer -= dyn.timerThreshold; // reset timer
-        
-            // update Gray-Scott params
-            dyn.p.f = effectController.f;
-            dyn.p.k = effectController.k;
-        
-            // update array/texture
-            rungeKutta4Step(dxdtGrayScott, dyn.x, dyn.deltaT, dyn.p);
-            tex.texture = array2texture(dyn.x, dyn.p, 10., 0.6);
-                
-            // update params (before repopulating the scene)
-            snailParams.tex = tex;
-            snailParams.dyn = dyn;
-        
-            // reset the scene (only if something has changed)
-            fillScene(); // lights and shell and added here
-            addAxes(25);
-        }
-    }    
+    container.prepend(renderer.domElement); // prepending, so that gui is on top
 }
 
 function render() {
@@ -189,26 +107,18 @@ function render() {
     cameraControls.update(delta);
     snailParams.dyn.timer += delta;
 
-    updateGeometry();
-    updateStaticTextures();
-    updateDynamicTextures();
+    updateDynamicTexture();
 
     renderer.render(scene, camera);
 }
 
-window.addEventListener('resize', () => {
-    const canvasWidth = Math.round(containerParams.relWidth * window.innerWidth);
-    const canvasHeight = Math.round(containerParams.relHeight * window.innerHeight);
-    const canvasRatio = canvasWidth / canvasHeight;
-
-    camera.aspect = canvasRatio; 
-    camera.updateProjectionMatrix();
-    renderer.setSize(canvasWidth, canvasHeight); 
-});
+function animate() {
+    window.requestAnimationFrame(animate);
+    render();
+}
 
 // run all
 function main() {
-    setupGui();  // adds control menu 
     init();      // sets up camera, controls and renderer, as well as preloads all textures
     fillScene(); // lights and shell are added here
     addAxes();   // add xyz to the scene
