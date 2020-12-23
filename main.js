@@ -1,5 +1,5 @@
 function addAxes(scale) {
-    scale = (scale === undefined) ? 100:scale;
+    scale = (scale === undefined) ? 25:scale;
     let axGeometry = new THREE.CylinderGeometry(scale*0.001,scale*0.001,scale*1,32);
     
     let xMat = new THREE.MeshPhongMaterial( {color: 0xFF0000} );
@@ -82,9 +82,9 @@ function loadTextures() {
 
 function init() {
 
-    let canvasWidth = window.innerWidth;
-    let canvasHeight = window.innerHeight;
-    let canvasRatio = canvasWidth / canvasHeight;
+    const canvasWidth = window.innerWidth;
+    const canvasHeight = window.innerHeight;
+    const canvasRatio = canvasWidth / canvasHeight;
 
     setRenderer(canvasWidth, canvasHeight);
     setCamera(canvasRatio);
@@ -93,8 +93,8 @@ function init() {
 }
 
 function addToDOM() {
-    let container = document.getElementById("container");
-    let canvas = container.getElementsByTagName("canvas");
+    const container = document.getElementById("container");
+    const canvas = container.getElementsByTagName("canvas");
     if (canvas.length > 0) {
         container.removeChild(canvas[0]);
     }
@@ -106,29 +106,27 @@ function animate() {
     render();
 }
 
-function render() {
-    // deconstruct params
-    let { geo, tex, dyn } = snailParams;
-
-    let delta = clock.getDelta();
-    cameraControls.update(delta);
-    dyn.timer += delta;
-
-    // update controls only if toggled
-    // (dynamic texture needs to be treated separately,
-    //  as it's more computationally intensivegit vvvvserser)
+function updateGeometry() {
+    let { geo } = snailParams;
     if (geo.radDecayPer2Pi !== effectController.raddecay ||
-        geo.numTurns !== effectController.turns ||
-        tex.textureName !== effectController.texname ||
-        tex.textureTangRepeats !== effectController.textangrepeats ||
-        tex.textureTangOffset !== effectController.textangoffset ||
-        tex.textureLongRepeats !== effectController.texlongrepeats) {
+        geo.numTurns !== effectController.turns) {
 
-        // update geometry
         geo.radDecayPer2Pi = effectController.raddecay;
         geo.numTurns = effectController.turns;
 
-        // update static texture                
+        snailParams.geo = geo;
+        fillScene(); // lights and shell and added here
+        addAxes(25);
+    }
+}
+
+function updateStaticTextures() {
+    let { tex, dyn } = snailParams;
+    if (tex.textureName !== effectController.texname ||
+        tex.textureTangRepeats !== effectController.textangrepeats ||
+        tex.textureTangOffset !== effectController.textangoffset ||
+        tex.textureLongRepeats !== effectController.texlongrepeats) {
+        
         if (effectController.texname !== "dynamic" && 
             tex.textureName !== effectController.texname) {
             dyn.dynamic = false;
@@ -142,7 +140,6 @@ function render() {
         tex.textureLongRepeats = effectController.texlongrepeats;
 
         // update params (before repopulating the scene)
-        snailParams.geo = geo;
         snailParams.tex = tex;
         snailParams.dyn = dyn;
 
@@ -150,46 +147,69 @@ function render() {
         fillScene(); // lights and shell and added here
         addAxes(25);
     }
+}
 
-    if (effectController.texname === "dynamic" && dyn.dynamic === false) {
-        dyn.dynamic = true;
-        dyn.x = initTextureArray(dyn.x, dyn.p);
-    }
-
-    if (effectController.texname === "dynamic" && dyn.timer > dyn.timerThreshold) {
-        dyn.timer -= dyn.timerThreshold; // reset timer
-
-        // update Gray-Scott params
-        dyn.p.f = effectController.f;
-        dyn.p.k = effectController.k;
-
-        // update array/texture
-        rungeKutta4Step(dxdtGrayScott, dyn.x, dyn.deltaT, dyn.p);
-        tex.texture = array2texture(dyn.x, dyn.p, 10., 0.6);
+function updateDynamicTextures() {
+    let { tex, dyn } = snailParams;
+    
+    if (tex.textureName !== effectController.texname) {
         
-        // update params (before repopulating the scene)
-        snailParams.tex = tex;
-        snailParams.dyn = dyn;
+        if (effectController.texname === "dynamic" && dyn.dynamic === false) {
+            dyn.dynamic = true;
+            dyn.x = initTextureArray(dyn.x, dyn.p);
+        }
+        
+        if (effectController.texname === "dynamic" && dyn.timer > dyn.timerThreshold) {
+            dyn.timer -= dyn.timerThreshold; // reset timer
+        
+            // update Gray-Scott params
+            dyn.p.f = effectController.f;
+            dyn.p.k = effectController.k;
+        
+            // update array/texture
+            rungeKutta4Step(dxdtGrayScott, dyn.x, dyn.deltaT, dyn.p);
+            tex.texture = array2texture(dyn.x, dyn.p, 10., 0.6);
+                
+            // update params (before repopulating the scene)
+            snailParams.tex = tex;
+            snailParams.dyn = dyn;
+        
+            // reset the scene (only if something has changed)
+            fillScene(); // lights and shell and added here
+            addAxes(25);
+        }
+    }    
+}
 
-        // reset the scene (only if something has changed)
-        fillScene(); // lights and shell and added here
-        addAxes(25);
-    }
+function render() {
 
-    // update params (before repopulating the scene)
-    snailParams.geo = geo;
-    snailParams.tex = tex;
-    snailParams.dyn = dyn;
+    let delta = clock.getDelta();
+    cameraControls.update(delta);
+    snailParams.dyn.timer += delta;
+
+    updateGeometry();
+    updateStaticTextures();
+    updateDynamicTextures();
 
     renderer.render(scene, camera);
 }
+
+window.addEventListener('resize', () => {
+    const canvasWidth = window.innerWidth;
+    const canvasHeight = window.innerHeight;
+    const canvasRatio = canvasWidth / canvasHeight;
+
+    camera.aspect = canvasRatio; 
+    camera.updateProjectionMatrix();
+    renderer.setSize(canvasWidth, canvasHeight); 
+});
 
 // run all
 function main() {
     setupGui();  // adds control menu 
     init();      // sets up camera, controls and renderer, as well as preloads all textures
     fillScene(); // lights and shell are added here
-    addAxes(25); // add xyz to the scene
+    addAxes();   // add xyz to the scene
     addToDOM();  // adds rendered scene back to html
     animate();   // updates frames when camera changes position or controls are toggled    
 }
