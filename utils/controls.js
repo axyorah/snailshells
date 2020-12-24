@@ -169,10 +169,17 @@ texUploadInpt.addEventListener("change", (evt) => {
     // get uploaded file data
     const file = texUploadInpt.files[0];
     const url = URL.createObjectURL(file);
+    let name;
+    if (file.name.length <= 30) {
+        name = file.name;
+    } else {
+        const len = file.name.length;
+        name = `${file.name.slice(0,20)}...${file.name.slice(len-7)}`;
+    }    
 
     // update textures
     const newTexture = new THREE.TextureLoader().load(url);
-    const newTextureName = `Custom Texture ${tex.textureNames.length - 9}`;
+    const newTextureName = name;
     tex.textures[newTextureName] = newTexture;
     tex.textureNames.push(newTextureName);
 
