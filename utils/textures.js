@@ -1,17 +1,17 @@
 // texture helpers
-function initTextureArray(x, p) {
+function initTextureArray( p ) {
     const { dumm, pred, prey } = p;
 
-    x = new Array(p.height * p.width * 3);
+    let x = new Array(p.height * p.width * 3);
     for (let i = 0; i < p.height * p.width; i++) {
-        let stride = i * 3;
+        const stride = i * 3;
 
         x[stride + prey] = 1.; // prey is everywhere
         x[stride + pred] = 0.; // predators are not there yet
         x[stride + dumm] = 0.5; // dummy can be anything...
 
         // roll again for predator
-        let roll = Math.random();
+        const roll = Math.random();
         if ( roll < 1/1000 ) {
             x[stride + pred] = 1.; // predator are assigned to some texels
         }
@@ -19,14 +19,21 @@ function initTextureArray(x, p) {
     return x;
 }
 
+function initTexture( p ){
+    const data = new Uint8Array( p.width * p.height * 3 );
+    const texture = new THREE.DataTexture( data, p.width, p.height, THREE.RGBFormat );    
+    texture.needsUpdate = true;
+    return texture;
+}
+
 function setGrayScottReactionTerm(reaction, x, p) {
     const { dumm, pred, prey } = p;
 
     for (let i = 0; i < p.height * p.width; i++) {
-        let stride = i * 3;
+        const stride = i * 3;
 
-        let a = x[stride + prey];
-        let b = x[stride + pred];
+        const a = x[stride + prey];
+        const b = x[stride + pred];
 
         reaction[stride + prey] = -a * b * b + p.f * (1 - a);    // prey
         reaction[stride + pred] =  a * b * b - (p.k + p.f) * b;  // predator
@@ -48,8 +55,7 @@ function dxdtGrayScott(x, p) {
     return total;
 }
 
-function array2texture(x, p, steepness, midpoint) {
-
+function createDataTextureFromArray(x, p, steepness, midpoint) {
     let data = new Uint8Array( x.length );
     
     for (let i = 0; i < x.length; i++) {
@@ -58,10 +64,10 @@ function array2texture(x, p, steepness, midpoint) {
     return new THREE.DataTexture( data, p.width, p.height, THREE.RGBFormat );
 }
 
-function updateDynTexture(texture, x, steepness, midpoint) {
-    
+function updateDataTextureFromArray(texture, x, p, steepness, midpoint) {
     for (let i = 0; i < x.length; i++) {
-        texture.image.data[i] = Math.floor( 255. / (1 + Math.exp(-steepness * (x[i] - midpoint))) );
+        texture.image.data[i] = Math.floor( 255. / (1 + Math.exp(-steepness * (x[i] - midpoint))) );                
     }
+    texture.needsUpdate = true; // <-- sic!
     return texture;
 }

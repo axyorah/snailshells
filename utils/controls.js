@@ -20,10 +20,12 @@ function updateDynamicTexture() {
     if (dyn.dynamic && dyn.timer > dyn.timerThreshold) {
         dyn.timer -= dyn.timerThreshold; // reset timer
                 
-        // update array/texture
+        // update x array
         rungeKutta4Step(dxdtGrayScott, dyn.x, dyn.deltaT, dyn.p);
-        tex.texture = array2texture(dyn.x, dyn.p, 10., 0.6);
-                
+        
+        // update texture
+        updateDataTextureFromArray(tex.texture, dyn.x, dyn.p, 10., 0.6);
+        
         // update params (before repopulating the scene)
         snailParams.tex = tex;
         snailParams.dyn = dyn;
@@ -97,17 +99,19 @@ texNameSelect.addEventListener("change", () => {
 fDynRng.addEventListener("input", () => {
     const val = parseFloat(fDynRng.value);
 
-    let { dyn } = snailParams;
+    let { tex, dyn } = snailParams;
     dyn.p.f = val;
 
     fDynLbl.innerText = `${fDynLbl.innerText.split(":")[0]}: ${val}`;
 
     if (!dyn.dynamic) {
         dyn.dynamic = true;
-        dyn.x = initTextureArray(dyn.x, dyn.p);
+        tex.texture = initTexture(dyn.p);
+        dyn.x = initTextureArray(dyn.p);
     }
 
-    snailParams.dyn = dyn;  
+    snailParams.dyn = dyn;
+    snailParams.tex = tex;
     // scene is added in renderer/updateDynamicTexture
     // as for dyn textures it needs to be updated for each frame,
     // not just on param change  
@@ -116,17 +120,19 @@ fDynRng.addEventListener("input", () => {
 kDynRng.addEventListener("input", () => {
     const val = parseFloat(kDynRng.value);
 
-    let { dyn } = snailParams;
+    let { tex, dyn } = snailParams;
     dyn.p.k = val;
 
     kDynLbl.innerText = `${kDynLbl.innerText.split(":")[0]}: ${val}`;
 
     if (!dyn.dynamic) {
         dyn.dynamic = true;
-        dyn.x = initTextureArray(dyn.x, dyn.p);
+        tex.texture = initTexture(dyn.p);
+        dyn.x = initTextureArray(dyn.p);
     }
 
-    snailParams.dyn = dyn;
+    snailParams.dyn = dyn;  
+    snailParams.tex = tex;
     // scene is added in renderer/updateDynamicTexture
     // as for dyn textures it needs to be updated for each frame,
     // not just on param change
