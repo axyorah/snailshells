@@ -39,19 +39,25 @@
     outline: none;
     background-color: rgba(85, 85, 85, 0.9);
     border: 1px solid white;
+    margin-top: 5px;
+    width: 100%;
+    transition: 0.4;
+}
+
+.box:hover {
+    background-color: rgb(65, 65, 65);
 }
 
 .btn {
     margin-top: 5px;
     cursor: pointer;
-    transition: 0.4;
-}
-
-.btn:hover {
-    background-color: rgb(65, 65, 65);
 }
 
 form {
-    margin-top: 15px;
+    margin-top: 10px;
     margin-bottom: 5px;
+}
+
+input[type="file"] {
+    display: none;
 }
