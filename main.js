@@ -94,6 +94,7 @@ function init() {
 }
 
 function addToDOM() {
+    // there should only be one canvas - current renderer.domElement
     const canvas = container.getElementsByTagName("canvas");
     if (canvas.length > 0) {
         container.removeChild(canvas[0]);

@@ -19,6 +19,7 @@
 }
 
 .gui-box {
+    font-family: 'Roboto', 'Sans Serif';
     margin: 3px;
     padding: 6px;
     border: 1px solid white;
