@@ -14,6 +14,7 @@ const fDynLbl = document.querySelector("#f-dyn-lbl");
 const kDynRng = document.querySelector("#k-dyn");
 const kDynLbl = document.querySelector("#k-dyn-lbl");
 const dynResetBtn = document.querySelector("#dyn-reset");
+const texUploadInpt = document.querySelector("#texupload");
 
 function updateDynamicTexture() {
     let { tex, dyn } = snailParams;
@@ -159,6 +160,29 @@ dynResetBtn.addEventListener("click", () => {
 
     snailParams.tex = tex;
     snailParams.dyn = dyn;
+})
+
+texUploadInpt.addEventListener("change", (evt) => {
+    evt.preventDefault();
+    const { tex } = snailParams;
+
+    // get uploaded file data
+    const file = texUploadInpt.files[0];
+    const url = URL.createObjectURL(file);
+
+    // update textures
+    const newTexture = new THREE.TextureLoader().load(url);
+    const newTextureName = `Custom Texture ${tex.textureNames.length - 9}`;
+    tex.textures[newTextureName] = newTexture;
+    tex.textureNames.push(newTextureName);
+
+    // update DOM
+    let option = document.createElement("option");
+    option.value = newTextureName;
+    option.innerText = newTextureName;
+    texNameSelect.appendChild(option);
+
+    snailParams.tex = tex;
 })
 
 window.addEventListener('resize', () => {

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>snail-shell server</title>
+    <title>Snail Shell Patterns</title>
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles/style.css">
@@ -31,7 +31,7 @@
 
                 <div id="statictex" class="gui-box">
                     <p><b>Static Textures</b></p>
-                    <select class="custom-select" id="texname">
+                    <select class="custom-select box" id="texname">
                         <option disabled selected>Choose a Texture</option>
                         <option value="angelfish-1">Angelfish (1)</option>
                         <option value="angelfish-2">Angerfish (2)</option>
@@ -44,6 +44,13 @@
                         <option value="pred-prey-1">Predator - Prey (1)</option>
                         <option value="pred-prey-2">Predator - Prey (2)</option>
                     </select>
+                    <form method="post" enctype="multipart/form-data">
+                        Upload Custom Texture:
+                        <div>
+                            <input type="file" id="texupload" class="box"
+                                accept="image/png, image/jpg, image/jpeg">
+                        </div>
+                    </form>
                 </div>
 
                 <div id="dyntex" class="gui-box">
@@ -52,7 +59,7 @@
                     <input type="range" min="0.01" max="0.065" step="0.0001" value="0.014" id="f-dyn" name="f-dyn">
                     <label for="k-dyn" id="k-dyn-lbl">k ('pred' decay):</label>
                     <input type="range" min="0.01" max="0.065" step="0.0001" value="0.045" id="k-dyn" name="k-dyn">
-                    <button id="dyn-reset" class="btn btn-primary">Reset</button>
+                    <button id="dyn-reset" class="btn box">Reset</button>
                 </div>
             </div>
         </div>
@@ -66,7 +73,7 @@
     <script src="./utils/controls.js"></script>
     <script src="./utils/textures.js"></script>
     <script src="./main.js"></script>
-   
+
 </body>
 
 </html>

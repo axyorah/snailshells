@@ -29,16 +29,20 @@
     background-color: rgba(0,0,0,0.3);
 }
 
-.btn {
+.box {
     font-family: 'Roboto', 'Sans Serif';
     font-size: 1em;
     color: white;
-    margin-top: 5px;
-    outline: none;
     border: 1px solid white;
     border-radius: 5px;
-    background-color: rgb(85, 85, 85);
-    opacity: 0.9;
+    padding: 3px;
+    outline: none;
+    background-color: rgba(85, 85, 85, 0.9);
+    border: 1px solid white;
+}
+
+.btn {
+    margin-top: 5px;
     cursor: pointer;
     transition: 0.4;
 }
@@ -47,14 +51,7 @@
     background-color: rgb(65, 65, 65);
 }
 
-#texname {
-    font-family: 'Roboto', 'Sans Serif';
-    font-size: 1em;
-    color: white;
-    border-radius: 5px;
-    padding: 3px;
-    outline: none;
-    background-color: rgb(85, 85, 85);
-    opacity: 0.9;
-    border: 1px solid white;
+form {
+    margin-top: 15px;
+    margin-bottom: 5px;
 }
