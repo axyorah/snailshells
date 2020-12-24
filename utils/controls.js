@@ -13,6 +13,7 @@ const fDynRng = document.querySelector("#f-dyn");
 const fDynLbl = document.querySelector("#f-dyn-lbl");
 const kDynRng = document.querySelector("#k-dyn");
 const kDynLbl = document.querySelector("#k-dyn-lbl");
+const dynResetBtn = document.querySelector("#dyn-reset");
 
 function updateDynamicTexture() {
     let { tex, dyn } = snailParams;
@@ -136,6 +137,28 @@ kDynRng.addEventListener("input", () => {
     // scene is added in renderer/updateDynamicTexture
     // as for dyn textures it needs to be updated for each frame,
     // not just on param change
+})
+
+dynResetBtn.addEventListener("click", () => {    
+    let { tex, dyn } = snailParams;
+
+    const fVal = 0.014;
+    const kVal = 0.045;
+
+    dyn.p.f = fVal;
+    fDynRng.value = fVal;
+    fDynLbl.innerText = `${fDynLbl.innerText.split(":")[0]}: ${fVal}`;
+
+    dyn.p.k = kVal;
+    kDynRng.value = kVal;
+    kDynLbl.innerText = `${kDynLbl.innerText.split(":")[0]}: ${kVal}`;
+
+    dyn.dynamic = true;
+    tex.texture = initTexture(dyn.p);
+    dyn.x = initTextureArray(dyn.p);
+
+    snailParams.tex = tex;
+    snailParams.dyn = dyn;
 })
 
 window.addEventListener('resize', () => {
