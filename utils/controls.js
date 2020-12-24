@@ -162,12 +162,12 @@ dynResetBtn.addEventListener("click", () => {
     snailParams.dyn = dyn;
 })
 
-texUploadInpt.addEventListener("change", (evt) => {
-    evt.preventDefault();
+texUploadInpt.addEventListener("change", () => {
     const { tex } = snailParams;
 
     // get uploaded file data
     const file = texUploadInpt.files[0];
+    if ( file === undefined ) { return; }
     const url = URL.createObjectURL(file);
     let name;
     if (file.name.length <= 30) {
