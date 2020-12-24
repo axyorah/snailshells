@@ -67,20 +67,5 @@ $ http-server . -p 8181
 
 Demo will be available at `localhost:8181` in your browser.
 
-### Adding your own custom textures
-If you're running the demo locally or if you've passed `-v $(pwd):/shells` parameter when starting up docker container, you can easily add your own custom textures to the demo. To do it:
-- save your texture in `./imgs/` directory,
-- modify functions `init()` and `setupGui()` in `snail_shell.js`:
-  - In `init()` add a line:
-  ```
-  textures.mytexture = new THREE.TextureLoader().load("imgs/mytexture.png");
-  ```
-  - In `setupGui()` add a new entry to:
-  ```
-  h.add( effectController, "texname", [..., "mytexture"]).name("texture name");
-  ```
-
-After you refresh the browser your custom textures should become available in the controls. To see how to generate random patterns with beautiful mathematics check [this tutorial](https://github.com/axyorah/reaction_diffusion_tutorial).
-
 ## Acknowledgements
 This demo was mainly inspired by Hans Meinhardt's book [The Algorithmic Beauty of Sea Shells](https://www.springer.com/gp/book/9783540921417). Do check it!
