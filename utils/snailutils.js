@@ -40,19 +40,15 @@ function setSnailShellVertices(geometry, snailParams) {
 
     INPUTS:
         geometry: THREE.Geometry(): 'empty' initiated geometry object that will be updated
-        numTurns: float: number of turns of the shell spiral;
-            if not specified default 5 will be used
-        numRingsPer2Pi: int: number of rings per one spiral turn 
-            (shell resolution in longitudinal direction for one spiral turn);
-            if not specified default 16 will be used
-        numPointsPerRing: int: number of vertices in a single ring
-            (shell resolution in tangential direction);
-            if not specified default 16 will be used
-        ra0: float: radius of the first ring;
-            if not specified default 1 will be used
-        radDecayPer2Pi: float: relative radius reduction per spiral turn 
-            (0 < radDecayPer2Pi < 1)
-            if not specified default 0.3 will be used
+        snailParams: object with field `geo`, which itself has the following fields:
+            numTurns: float: number of turns of the shell spiral;
+            numRingsPer2Pi: int: number of rings per one spiral turn 
+                (shell resolution in longitudinal direction for one spiral turn);
+            numPointsPerRing: int: number of vertices in a single ring
+                (shell resolution in tangential direction);
+            rad0: float: radius of the first ring;
+            radDecayPer2Pi: float: relative radius reduction per spiral turn 
+                (0 < radDecayPer2Pi < 1)
     OUTPUT:
         doesn't output anything, updates geometry with vertices
     */
@@ -125,19 +121,12 @@ function setSnailShellFaces(geometry, snailParams) {
     INPUTS:
         geometry: THREE.Geometry(): initiated geometry object that has vertices assigned;
             will be further updated
-        numTurns: float: number of turns of the shell spiral;
-            if not specified default 5 will be used
-        numRingsPer2Pi: int: number of rings per one spiral turn 
-            (shell resolution in longitudinal direction for one spiral turn);
-            if not specified default 16 will be used
-        numPointsPerRing: int: number of vertices in a single ring
-            (shell resolution in tangential direction);
-            if not specified default 16 will be used
-        ra0: float: radius of the first ring;
-            if not specified default 1 will be used
-        radDecayPer2Pi: float: relative radius reduction per spiral turn 
-            (0 < radDecayPer2Pi < 1)
-            if not specified default 0.3 will be used
+        snailParams: object with field `geo`, which itself has the following fields:
+            numTurns: float: number of turns of the shell spiral;
+            numRingsPer2Pi: int: number of rings per one spiral turn 
+                (shell resolution in longitudinal direction for one spiral turn);
+            numPointsPerRing: int: number of vertices in a single ring
+                (shell resolution in tangential direction);
     OUTPUT:
         doesn't output anything, updates geometry with faces
     */
@@ -178,28 +167,23 @@ function setSnailShellTexture(geometry, snailParams) {
     INPUTS:
         geometry: THREE.Geometry(): geometry object woth vertices and faces assigned;
             will be further updated
-        numTurns: float: number of turns of the shell spiral;
-            if not specified default 5 will be used
-        numRingsPer2Pi: int: number of rings per one spiral turn 
-            (shell resolution in longitudinal direction for one spiral turn);
-            if not specified default 16 will be used
-        numPointsPerRing: int: number of vertices in a single ring
-            (shell resolution in tangential direction);
-            if not specified default 16 will be used
-        ra0: float: radius of the first ring;
-            if not specified default 1 will be used
-        radDecayPer2Pi: float: relative radius reduction per spiral turn 
-            (0 < radDecayPer2Pi < 1)
-            if not specified default 0.3 will be used
-        texture: THREE texture object: pattern to be used as repeating texture:
-            either image loaded with THREE.TextureLoader
-            or data array made into a texture with THREE.DataTexture
-        textureLongRepeats: float: number of texture repeats per spiral turn 
-            in longitudinal direction  
-            (repeated textures will be mirrored to smoothen the transitions)
-        textureTangRepeats: int: number of texture repeats in tangential direction
-            should be a multiple of 2 (because of the mirror repeats)
-        textureTangOffset: float: relative texture offset in tangential direction
+        snailParams: object with fields `geo` and `tex`;
+            field `geo` should have the following fields:
+                numTurns: float: number of turns of the shell spiral;
+                numRingsPer2Pi: int: number of rings per one spiral turn 
+                    (shell resolution in longitudinal direction for one spiral turn);
+                numPointsPerRing: int: number of vertices in a single ring
+                    (shell resolution in tangential direction);
+            field `tex` should have the following subfields:
+                texture: THREE texture object: pattern to be used as repeating texture:
+                    either image loaded with THREE.TextureLoader
+                    or data array made into a texture with THREE.DataTexture
+                textureLongRepeats: float: number of texture repeats per spiral turn 
+                    in longitudinal direction  
+                    (repeated textures will be mirrored to smoothen the transitions)
+                textureTangRepeats: int: number of texture repeats in tangential direction
+                    should be a multiple of 2 (because of the mirror repeats)
+                textureTangOffset: float: relative texture offset in tangential direction
     OUTPUT:
         doesn't output anything, updates geometry with texture
     */
