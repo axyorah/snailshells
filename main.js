@@ -27,9 +27,11 @@ function fillScene() {
 
     const light1 = new THREE.DirectionalLight(0xffffff, 1.0);
     light1.position.set(200, 400, 500);
+    light1.castShadow = true;
 
     const light2 = new THREE.DirectionalLight(0xffffff, 1.0);
     light2.position.set(-500, 250, -200);
+    light2.castShadow = true;
 
     scene.add(ambientLight);
     scene.add(light1);
