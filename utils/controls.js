@@ -162,6 +162,29 @@ dynResetBtn.addEventListener("click", () => {
     snailParams.dyn = dyn;
 })
 
+function getNewTextureName(name) {
+    const { tex } = snailParams;
+
+    let testName = name;
+    let idx = 0;
+    while (tex.textures[testName] !== undefined) {
+        idx += 1;
+        testName = `${name} (${idx})`;
+    }
+    return testName;
+}
+
+function getNewTextureDisplayName(newTextureName) {
+    let displayName;
+    const len = newTextureName.length;
+    if ( len <= 30) {
+        displayName = newTextureName;
+    } else {
+        displayName = `${newTextureName.slice(0,13)}...${newTextureName.slice(len-14)}`;
+    }
+    return displayName;
+}
+
 texUploadInpt.addEventListener("change", () => {
     const { tex } = snailParams;
 
@@ -169,24 +192,19 @@ texUploadInpt.addEventListener("change", () => {
     const file = texUploadInpt.files[0];
     if ( file === undefined ) { return; }
     const url = URL.createObjectURL(file);
-    let name;
-    if (file.name.length <= 30) {
-        name = file.name;
-    } else {
-        const len = file.name.length;
-        name = `${file.name.slice(0,20)}...${file.name.slice(len-7)}`;
-    }    
+
+    // get texture name
+    const newTextureName = getNewTextureName(file.name);
+    const displayName = getNewTextureDisplayName(newTextureName);
 
     // update textures
     const newTexture = new THREE.TextureLoader().load(url);
-    const newTextureName = name;
     tex.textures[newTextureName] = newTexture;
-    tex.textureNames.push(newTextureName);
 
     // update DOM
     let option = document.createElement("option");
     option.value = newTextureName;
-    option.innerText = newTextureName;
+    option.innerText = displayName;
     texNameSelect.appendChild(option);
 
     snailParams.tex = tex;
