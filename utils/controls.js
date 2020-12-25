@@ -16,28 +16,6 @@ const kDynLbl = document.querySelector("#k-dyn-lbl");
 const dynResetBtn = document.querySelector("#dyn-reset");
 const texUploadInpt = document.querySelector("#texupload");
 
-function updateDynamicTexture() {
-    let { tex, dyn } = snailParams;
-
-    if (dyn.dynamic && dyn.timer > dyn.timerThreshold) {
-        dyn.timer -= dyn.timerThreshold; // reset timer
-                
-        // update x array
-        rungeKutta4Step(dxdtGrayScott, dyn.x, dyn.deltaT, dyn.p);
-        
-        // update texture
-        updateDataTextureFromArray(tex.texture, dyn.x, dyn.p, 10., 0.6);
-        
-        // update params (before repopulating the scene)
-        snailParams.tex = tex;
-        snailParams.dyn = dyn;
-        
-        // reset the scene (only at set timer ticks)
-        fillScene(); 
-        addAxes();
-    }
-}
-
 radDecayRng.addEventListener("input", () => {
     const val = parseFloat(radDecayRng.value);
     snailParams.geo.radDecayPer2Pi = val;
