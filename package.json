@@ -8,7 +8,7 @@
     "http-proxy": "^1.18.1",
     "http-server": "^0.12.3",
     "lodash": "^4.17.19",
-    "three": "^0.123.0"
+    "three": "~0.123.0"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
