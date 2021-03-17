@@ -90,6 +90,6 @@ function updateDynamicTexture() {
         
         // reset the scene (only at set timer ticks)
         fillScene(); 
-        addAxes();
+        //addAxes();
     }
 }

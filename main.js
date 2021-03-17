@@ -25,17 +25,20 @@ function fillScene() {
     // LIGHTS
     const ambientLight = new THREE.AmbientLight(0x222222);
 
-    const light1 = new THREE.DirectionalLight(0xffffff, 1.0);
-    light1.position.set(200, 400, 500);
+    const light1 = new THREE.DirectionalLight(0xffffff, 0.6);
+    light1.position.set(500, -1000, -400);
     light1.castShadow = true;
 
-    const light2 = new THREE.DirectionalLight(0xffffff, 1.0);
-    light2.position.set(-500, 250, -200);
+    const light2 = new THREE.DirectionalLight(0xffffff, 0.6);
+    light2.position.set(400, -1000, -500);
     light2.castShadow = true;
 
     scene.add(ambientLight);
     scene.add(light1);
     scene.add(light2);
+
+    // SKYBOX
+    scene.background = skyTexture;
 
     // SNAIL SHELL
     let snail = makeSnailShell(snailParams);
@@ -54,7 +57,7 @@ function setRenderer(w, h) {
 
 function setCamera(ratio) {
     camera = new THREE.PerspectiveCamera(40, ratio, 1, 10000);
-    camera.position.set(8, 5, -3);
+    camera.position.set(3, 7, 11);
 }
 
 function setControls() {
@@ -84,6 +87,8 @@ function loadTextures() {
 }
 
 function init() {
+
+    skyTexture = getSkybox();
 
     const canvasWidth = Math.round(containerParams.relWidth * window.innerWidth);
     const canvasHeight = Math.round(containerParams.relHeight * window.innerHeight);
@@ -124,7 +129,7 @@ function animate() {
 function main() {
     init();      // sets up camera, controls and renderer, as well as preloads all textures
     fillScene(); // lights and shell are added here
-    addAxes();   // add xyz to the scene
+    addAxes();
     addToDOM();  // adds rendered scene back to html
     animate();   // updates frames when camera changes position or controls are toggled    
 }
