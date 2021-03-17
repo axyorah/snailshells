@@ -23,7 +23,6 @@ radDecayRng.addEventListener("input", () => {
     radDecayLbl.innerText = `${radDecayLbl.innerText.split(":")[0]}: ${val}`;
 
     fillScene();
-    //addAxes();
 })
 
 turnsRng.addEventListener("input", () => {
@@ -33,7 +32,6 @@ turnsRng.addEventListener("input", () => {
     turnsLbl.innerText = `${turnsLbl.innerText.split(":")[0]}: ${val}`;
 
     fillScene();
-    //addAxes();
 })
 
 texLongRepeatsRng.addEventListener("input", () => {
@@ -43,7 +41,6 @@ texLongRepeatsRng.addEventListener("input", () => {
     texLongRepeatsLbl.innerText = `${texLongRepeatsLbl.innerText.split(":")[0]}: ${val}`;
 
     fillScene();
-    //addAxes();
 })
 
 texTangRepeatsRng.addEventListener("input", () => {
@@ -53,7 +50,6 @@ texTangRepeatsRng.addEventListener("input", () => {
     texTangRepeatsLbl.innerText = `${texTangRepeatsLbl.innerText.split(":")[0]}: ${val}`;
 
     fillScene();
-    //addAxes();
 })
 
 texTangOffsetRng.addEventListener("input", () => {
@@ -63,7 +59,6 @@ texTangOffsetRng.addEventListener("input", () => {
     texTangOffsetLbl.innerText = `${texTangOffsetLbl.innerText.split(":")[0]}: ${val}`;
 
     fillScene();
-    //addAxes();
 })
 
 texNameSelect.addEventListener("change", () => {
@@ -73,7 +68,6 @@ texNameSelect.addEventListener("change", () => {
     snailParams.dyn.dynamic = false;
 
     fillScene();
-    //addAxes();
 })
 
 fDynRng.addEventListener("input", () => {

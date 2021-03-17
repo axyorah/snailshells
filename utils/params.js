@@ -11,11 +11,11 @@ let containerParams = {
 // snail
 let snailParams = {
     geo:{
-        numTurns: 5.,            // number of spiral turns of the shell
+        numTurns: 7.,            // number of spiral turns of the shell
         numRingsPer2Pi: 16,      // shell 'resolution' in longitudinal direction
         numPointsPerRing: 16,    // shell 'resolution' in tangential direction
         rad0: 1.0,               // radius of the first shell ring
-        radDecayPer2Pi: 0.3      // ... each ring at level i is 0.3 times smaller than corresponding rings at level i-1
+        radDecayPer2Pi: 0.35     // ... each ring at level i is 0.3 times smaller than corresponding rings at level i-1
     },
 
     tex: {
