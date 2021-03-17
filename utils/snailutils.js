@@ -39,7 +39,7 @@ function setSnailShellVertices(geometry, snailParams) {
     absolute rise would be dh * R
 
     INPUTS:
-        geometry: THREE.Geometry(): 'empty' initiated geometry object that will be updated
+        geometry: THREE.BufferGeometry(): 'empty' initiated geometry object that will be updated
         snailParams: object with field `geo`, which itself has the following fields:
             numTurns: float: number of turns of the shell spiral;
             numRingsPer2Pi: int: number of rings per one spiral turn 
@@ -72,6 +72,12 @@ function setSnailShellVertices(geometry, snailParams) {
     let height = 0.; // ring center's height
     let angle = 0.;  // angle between Ox and ring's center
 
+    let xcenter = [];
+    let ycenter = [];
+    let zcenter = [];
+    let xvertex = [];
+    let yvertex = [];
+    let zvertex = [];
     for (let iring = 0; iring < numRings; iring++) {
         // update ring center's location and radius
         rad *= df;
@@ -82,6 +88,9 @@ function setSnailShellVertices(geometry, snailParams) {
             height,
             rad * Math.sin(angle));
 
+        xcenter.push(center.x);
+        ycenter.push(center.y);
+        zcenter.push(center.z);
         // get ring vertices (anchor points of ring's surface)
         for (let ipoint = 0; ipoint < numPointsPerRing; ipoint++) {
             // construct a circle in xOy-plane, rotate and translate it			
@@ -92,8 +101,20 @@ function setSnailShellVertices(geometry, snailParams) {
             vertex.applyMatrix3(this.rotationMatrixAroundY(angle));
             vertex.addVectors(vertex, center);
 
-            geometry.vertices.push(vertex);
+            xvertex.push(vertex.x);
+            yvertex.push(vertex.y);
+            zvertex.push(vertex.z);
         }
+    }
+
+    // instead of setting up 'position' attribute here, 
+    // we'll first store coordinates of vertices and ring centers;
+    // the 'position' attribute will be assigned using these vertex data
+    // during the geometry face calculation along with normals
+    let attr = [xvertex, yvertex, zvertex, xcenter, ycenter, zcenter];
+    let attrName = ['xvertex', 'yvertex', 'zvertex', 'xcenter', 'ycenter', 'zcenter'];
+    for (let i=0; i < 6; i++) {
+        geometry.setAttribute(attrName[i], new THREE.Float32BufferAttribute( attr[i], 1 ));
     }
 }
 
@@ -119,7 +140,7 @@ function setSnailShellFaces(geometry, snailParams) {
         face 31: (15, 16, 0)
 
     INPUTS:
-        geometry: THREE.Geometry(): initiated geometry object that has vertices assigned;
+        geometry: THREE.BufferGeometry(): initiated geometry object that has vertices assigned;
             will be further updated
         snailParams: object with field `geo`, which itself has the following fields:
             numTurns: float: number of turns of the shell spiral;
@@ -134,6 +155,13 @@ function setSnailShellFaces(geometry, snailParams) {
     const { numTurns, numRingsPer2Pi, numPointsPerRing } = snailParams.geo;
    
     let numRings = Math.round(numTurns * numRingsPer2Pi) + 1;
+
+    // get precalculated vertices and ring centers
+    const { xcenter: cx, ycenter: cy, zcenter: cz, xvertex: vx, yvertex: vy, zvertex: vz } = geometry.attributes;
+
+    // store calculated positions and normals in array
+    let positions = [];
+    let normals = [];
 
     let ivertex, face1, face2;
     for (let iring = 0; iring < numRings; iring++) {
@@ -154,18 +182,41 @@ function setSnailShellFaces(geometry, snailParams) {
                     face2 = new THREE.Face3(
                         ivertex, ivertex + 1, ivertex + 1 - numPointsPerRing);
                 }
-                geometry.faces.push(face1);
-                geometry.faces.push(face2);
+                
+                // recall:
+                //        c--b:::c
+                // face2  | /  / | face1
+                //        a:::a--b 
+                // 'a' of f ace1 and 'a','c' of face2 belong to iring; 
+                // 'b','c' of face1 and 'b' of face2 belong to iring+1
+                for ( let face of [face1, face2]) {
+                    for (let ax of ['a', 'b', 'c']) {
+                        const ring = (ax === 'b' || (face === face1 && ax === 'c')) ? iring + 1 : iring;
+
+                        positions.push(...[
+                            vx.array[face[ax]], 
+                            vy.array[face[ax]], 
+                            vz.array[face[ax]]
+                        ]);
+                        normals.push(...[
+                            vx.array[face[ax]] - cx.array[ring], 
+                            vy.array[face[ax]] - cy.array[ring], 
+                            vz.array[face[ax]] - cz.array[ring]
+                        ]);
+                    }
+                }                          
             }
         }
     }
+    geometry.setAttribute('normal', new THREE.Float32BufferAttribute( normals, 3 ));
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute( positions, 3 ));
 }
 
 function setSnailShellTexture(geometry, snailParams) {
     /*
     Assignes mirror repeated texture to snail shell
     INPUTS:
-        geometry: THREE.Geometry(): geometry object woth vertices and faces assigned;
+        geometry: THREE.BufferGeometry(): geometry object woth vertices and faces assigned;
             will be further updated
         snailParams: object with fields `geo` and `tex`;
             field `geo` should have the following fields:
@@ -202,21 +253,31 @@ function setSnailShellTexture(geometry, snailParams) {
     var vertFrac = 1. / numPointsPerRing;
     var horFrac = 1. / numRingsPer2Pi;
 
-    // set texture UVs
+    // store uvs into array
+    let uvs = [];
+
+    // set texture UVs    
     for (let iring = 0; iring < numRings; iring++) {
         for (let ipoint = 0; ipoint < numPointsPerRing; ipoint++) {
-            geometry.faceVertexUvs[0].push([
-                new THREE.Vector2(iring * horFrac, ipoint * vertFrac),
-                new THREE.Vector2((iring + 1) * horFrac, ipoint * vertFrac),
-                new THREE.Vector2((iring + 1) * horFrac, (ipoint + 1) * vertFrac)
+            // recall:
+            //        c--b  c
+            // face2  | / / | face1
+            //        a  a--b 
+            // 'a' of face1 and 'a','c' of face2 belong to iring; 
+            // 'b','c' of face1 and 'b' of face2 belong to iring+1
+            uvs.push(...[
+                iring * horFrac, ipoint * vertFrac,
+                (iring + 1) * horFrac, ipoint * vertFrac,
+                (iring + 1) * horFrac, (ipoint + 1) * vertFrac
             ]);
-            geometry.faceVertexUvs[0].push([
-                new THREE.Vector2(iring * horFrac, ipoint * vertFrac),
-                new THREE.Vector2((iring + 1) * horFrac, (ipoint + 1) * vertFrac),
-                new THREE.Vector2(iring * horFrac, (ipoint + 1) * vertFrac)
+            uvs.push(...[
+                iring * horFrac, ipoint * vertFrac,
+                (iring + 1) * horFrac, (ipoint + 1) * vertFrac,
+                iring * horFrac, (ipoint + 1) * vertFrac
             ]);
         }
     }
+    geometry.setAttribute( 'uv', new THREE.Float32BufferAttribute( uvs, 2 ) );
 }
 
 function makeSnailShell(snailParams) {
@@ -224,14 +285,14 @@ function makeSnailShell(snailParams) {
     
     // build snail shell geometry: 
     // calculate coordinates of vertices, assign faces and textures
-    let geometry = new THREE.Geometry();
+    let geometry = new THREE.BufferGeometry();
+    
     setSnailShellVertices(geometry, snailParams);
     setSnailShellFaces(geometry, snailParams);
     setSnailShellTexture(geometry, snailParams);
 
-    // calculate normals for proper lighting
-    geometry.computeVertexNormals();
-    geometry.computeFaceNormals();
+    // adjust normals for proper lighting
+    geometry.normalizeNormals();
 
     // assemble snail shell from geometry and material 
     let material = new THREE.MeshPhongMaterial({ 
