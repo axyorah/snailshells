@@ -1,5 +1,7 @@
 # Reaction-Diffusion Patterns on Snail Shells: Demo
 
+Check the demo at https://arcane-anchorage-02918.herokuapp.com/.
+
 <img width=700 src="imgs/snailshell.gif">
 
 ## Description
@@ -20,8 +22,9 @@ It is convenient to interpret `xA` as "prey" and `xB` as "predator". The equatio
 In this demo you can regulate the growth coefficient of prey `f` and decay coefficient of predator `k`. Just play around with the controls and see what kind of patterns will emerge!
 
 ## Getting Started
+You don't have to install anything - you can check the demo [here](https://arcane-anchorage-02918.herokuapp.com/). Of course, if you want to tinker with the code on your machine, follow the instructions below.
 ### Running demo from the docker container
-The simplest way to set up project environment is to let docker take care of it. If you have [docker](https://www.docker.com/):
+One simple way to set up project environment is to let docker take care of it. If you have [docker](https://www.docker.com/):
 
 Clone this repo to your machine:
 ```
@@ -62,4 +65,5 @@ $ http-server . -p 8181
 Demo will be available at `localhost:8181` in your browser.
 
 ## Acknowledgements
-This demo was mainly inspired by Hans Meinhardt's book [The Algorithmic Beauty of Sea Shells](https://www.springer.com/gp/book/9783540921417). Do check it!
+This demo is mainly inspired by Hans Meinhardt's book [The Algorithmic Beauty of Sea Shells](https://www.springer.com/gp/book/9783540921417). Do check it!
+This demo uses skybox made by Jochum Skoglund.
